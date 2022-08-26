@@ -64,17 +64,17 @@ func main() {
 
 To send transaction you need:
 
-*) Create account (wallet) from known mnemonic
+* Create account (wallet) from known mnemonic
 
-*) Create API instance for account binding
+* Create API instance for account binding
 
-*) Bind account: set chan id, account number, account sequence (nonce)
+* Bind account: set chan id, account number, account sequence (nonce)
 
-*) Create transaction message
+* Create transaction message
 
-*) Sign transaction by account, send transaction
+* Sign transaction by account, send transaction
 
-*) Verify transaction delivery for sync mode
+* Verify transaction delivery for sync mode
 
 ```go
 package ...
