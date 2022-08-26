@@ -13,7 +13,7 @@ go get bitbucket.org/decimalteam/dsc-go-sdk
 
 # Usage
 
-You can see working example in example/main.go
+You can see working example in `example/main.go`
 
 ## I. Action
 
@@ -132,7 +132,7 @@ func main() {
     // ...error handling
 
     // 5. Sign and send
-    err = tx.SignTransaction(senderWallet)
+    err = tx.SignTransaction(account)
 	// ...error handling
 	bz, err := tx.BytesToSend()
 	// ...error handling
@@ -157,4 +157,37 @@ func main() {
 
 ## II. Views
 
-All GetXXX method of api. See api/endpoint.go, for return types see api/types.go
+To get some information about blocks, transactions, accounts, etc use GetXXX methods.
+
+All GetXXX methods declared in `api/endpoint.go`, return types declared in `api/types.go`
+
+`OptionalParams` is structure with fields Limit and Offset.
+`opt *OptionalParams` can be nil.
+If `opt *OptionalParams` is not nil, GetXXX gets part of data, specified by Limit and Offset.
+
+List of known methods:
+
+- GetAddress(id string) (*AddressInfo, error)
+- GetAddressTxs(id string, opt *OptionalParams) ([]TxInfo, error)
+- GetAllNFT(opt *OptionalParams) ([]NFT, error)
+- GetNFTCollection(collection string) (interface{}, error)
+- GetTxByHash(hash string) (*TxInfo, error)
+- GetTxs(opt *OptionalParams) ([]TxInfo, error)
+- GetCoins(opt *OptionalParams) ([]CoinInfo, error)
+- GetCoin(coin string) (*CoinInfo, error)
+- GetBlockByHeight(height uint64) (*BlockInfo, error)
+- GetBlockTransactions(height uint64) ([]TxInfo, error)
+- GetEvmContracts(opt *OptionalParams) ([]EvmContract, error)
+- GetEvmTransactions(opt *OptionalParams) ([]EvmTransaction, error)
+- GetEvmAccounts(opt *OptionalParams) ([]EvmAccount, error)
+- GetEvmContract(address string) (*EvmContract, error)
+- GetEvmTransaction(hash string) (*EvmTransaction, error)
+- GetEvmAccount(address string) (*EvmAccount, error)
+- GetEvmContractTransactions(address string, opt *OptionalParams) ([]EvmTransaction, error)
+- GetEvmContractEvents(address string, opt *OptionalParams) ([]EvmEvent, error)
+- GetEvmAccountBalances(address string, opt *OptionalParams) ([]EvmAccountBalance, error)
+- GetValidatorsByKind(kind string) ([]Validator, error)
+- GetValidatorsCoins(address string, opt *OptionalParams) ([]ValidatorStakedCoin, error)
+- GetValidator(address string) (*Validator, error)
+- GetValidatorStakes(address string, opt *OptionalParams) ([]ValidatorStake, error)
+- GetValidatorStakesNFT(address string) ([]ValidatorStakeNFT, error)

@@ -27,9 +27,9 @@ func main() {
 		return
 	}
 
-	printCoins(api)
+	printBlockchainInfo(api)
 
-	//sampleSendCoins(api)
+	sampleSendCoins(api)
 }
 
 //helper function
@@ -72,7 +72,7 @@ func sendCoin(api *dscApi.API, senderWallet *dscWallet.Account, receiver string)
 	senderWallet = senderWallet.WithChainID(api.ChainID()).WithSequence(seq).WithAccountNumber(num)
 
 	// 2. prepare message
-	// example of use Cosmos SDK standart functions: NewCoin, math.NewInt
+	// example of use Cosmos SDK standart functions: sdk.NewCoin, math.NewInt
 
 	receiverAddress, err := sdk.AccAddressFromBech32(receiver)
 	if err != nil {
@@ -142,111 +142,119 @@ func sendCoin(api *dscApi.API, senderWallet *dscWallet.Account, receiver string)
 
 func printBlockchainInfo(api *dscApi.API) {
 	printCoins(api)
-
-	/*
-		for block := uint64(0); block < 10000; block += 1000 {
-			blockInfo, err := api.GetBlockByHeight(block)
-			if err != nil {
-				fmt.Printf("GetBlockByHeight() error: %v\n", err)
-			} else {
-				fmt.Printf("GetBlockByHeight() result:\n%s\n", formatAsJSON(blockInfo))
-			}
-		}
-	*/
-
-	{
-		txs, err := api.GetTxs()
-		if err != nil {
-			fmt.Printf("GetTxs() error: %v\n", err)
-		} else {
-			for i, tx := range txs {
-				fmt.Printf("GetTxs() %d result:\n%s\n", i, formatAsJSON(tx))
-			}
-		}
-	}
-
-	{
-		for _, adr := range []string{"dx15cv03c4e2dvnc8cg72eaec4fv08pxzgkmr255d", "dx184qe86tyhurv5fxlxgvcwa6znfg3ugk8ajn4r3"} {
-			inf, err := api.GetAddress(adr)
-			if err != nil {
-				fmt.Printf("GetAddress() error: %v\n", err)
-			} else {
-				fmt.Printf("GetAddress() %s result:\n%s\n", adr, formatAsJSON(inf))
-			}
-		}
-	}
-
-	{
-		for _, hash := range []string{"0236FD82E1CAA67C7C3023B26E27F8EBDA3475C47936A4E5F61C7D655D5B39B2",
-			"D355B19F7958DC76454BCD057715D232DED4634458AF1A7F64FDADB0FBBB6699"} {
-			tx, err := api.GetTxByHash(hash)
-			if err != nil {
-				fmt.Printf("GetTxByHash() error: %v\n", err)
-			} else {
-				fmt.Printf("GetTxByHash() %s result:\n%s\n", hash, formatAsJSON(tx))
-			}
-		}
-	}
-
-	{
-		accs, err := api.GetEvmAccounts()
-		if err != nil {
-			fmt.Printf("GetEvmAccounts() error: %v\n", err)
-		} else {
-			for i, acc := range accs {
-				fmt.Printf("GetEvmAccounts() %d result:\n%s\n", i, formatAsJSON(acc))
-			}
-		}
-	}
-
-	{
-		contracts, err := api.GetEvmContracts()
-		if err != nil {
-			fmt.Printf("GetEvmContracts() error: %v\n", err)
-		} else {
-			for i, cntr := range contracts {
-				fmt.Printf("GetEvmContracts() %d result:\n%s\n", i, formatAsJSON(cntr))
-			}
-		}
-	}
-
-	{
-		txs, err := api.GetEvmTransactions()
-		if err != nil {
-			fmt.Printf("GetEvmTransactions() error: %v\n", err)
-		} else {
-			for i, tx := range txs {
-				fmt.Printf("GetEvmTransactions() %d result:\n%s\n", i, formatAsJSON(tx))
-			}
-		}
-	}
-
-	{
-		validators, err := api.GetValidatorsByKind("validator")
-		if err != nil {
-			fmt.Printf("GetValidatorsByKind() error: %v\n", err)
-		} else {
-			for _, val := range validators {
-				stakes, err := api.GetValidatorStakes(val.Address)
-				if err != nil {
-					fmt.Printf("GetValidatorStakes(%s) error: %v\n", val.Address, err)
-				} else {
-					for _, st := range stakes {
-						fmt.Printf("stake = %s\n", formatAsJSON(st))
-					}
-				}
-			}
-		}
-	}
+	printTx(api)
+	printBlocks(api)
+	printAddressInfo(api)
+	printTxInfo(api)
+	printEvmAccounts(api)
+	printEvmContracts(api)
+	printEvmTransactions(api)
+	printGetValidatorsByKind(api)
 }
 
 func printCoins(api *dscApi.API) {
-	coins, err := api.GetCoins()
+	coins, err := api.GetCoins(nil)
 	if err != nil {
 		fmt.Printf("GetCoins() error: %v\n", err)
 		return
 	}
 	for _, coin := range coins {
 		fmt.Printf("%s\n", formatAsJSON(coin))
+	}
+}
+
+func printTx(api *dscApi.API) {
+	txs, err := api.GetTxs(nil)
+	if err != nil {
+		fmt.Printf("GetTxs() error: %v\n", err)
+	} else {
+		for i, tx := range txs {
+			fmt.Printf("GetTxs() %d result:\n%s\n", i, formatAsJSON(tx))
+		}
+	}
+}
+
+func printBlocks(api *dscApi.API) {
+	for block := uint64(0); block < 10000; block += 1000 {
+		blockInfo, err := api.GetBlockByHeight(block)
+		if err != nil {
+			fmt.Printf("GetBlockByHeight() error: %v\n", err)
+		} else {
+			fmt.Printf("GetBlockByHeight() result:\n%s\n", formatAsJSON(blockInfo))
+		}
+	}
+}
+
+func printAddressInfo(api *dscApi.API) {
+	for _, adr := range []string{"dx15cv03c4e2dvnc8cg72eaec4fv08pxzgkmr255d", "dx184qe86tyhurv5fxlxgvcwa6znfg3ugk8ajn4r3"} {
+		inf, err := api.GetAddress(adr)
+		if err != nil {
+			fmt.Printf("GetAddress() error: %v\n", err)
+		} else {
+			fmt.Printf("GetAddress() %s result:\n%s\n", adr, formatAsJSON(inf))
+		}
+	}
+}
+
+func printTxInfo(api *dscApi.API) {
+	for _, hash := range []string{"0236FD82E1CAA67C7C3023B26E27F8EBDA3475C47936A4E5F61C7D655D5B39B2",
+		"D355B19F7958DC76454BCD057715D232DED4634458AF1A7F64FDADB0FBBB6699"} {
+		tx, err := api.GetTxByHash(hash)
+		if err != nil {
+			fmt.Printf("GetTxByHash() error: %v\n", err)
+		} else {
+			fmt.Printf("GetTxByHash() %s result:\n%s\n", hash, formatAsJSON(tx))
+		}
+	}
+}
+
+func printEvmAccounts(api *dscApi.API) {
+	accs, err := api.GetEvmAccounts(nil)
+	if err != nil {
+		fmt.Printf("GetEvmAccounts() error: %v\n", err)
+	} else {
+		for i, acc := range accs {
+			fmt.Printf("GetEvmAccounts() %d result:\n%s\n", i, formatAsJSON(acc))
+		}
+	}
+}
+
+func printEvmContracts(api *dscApi.API) {
+	contracts, err := api.GetEvmContracts(nil)
+	if err != nil {
+		fmt.Printf("GetEvmContracts() error: %v\n", err)
+	} else {
+		for i, cntr := range contracts {
+			fmt.Printf("GetEvmContracts() %d result:\n%s\n", i, formatAsJSON(cntr))
+		}
+	}
+}
+
+func printEvmTransactions(api *dscApi.API) {
+	txs, err := api.GetEvmTransactions(nil)
+	if err != nil {
+		fmt.Printf("GetEvmTransactions() error: %v\n", err)
+	} else {
+		for i, tx := range txs {
+			fmt.Printf("GetEvmTransactions() %d result:\n%s\n", i, formatAsJSON(tx))
+		}
+	}
+}
+
+func printGetValidatorsByKind(api *dscApi.API) {
+	validators, err := api.GetValidatorsByKind("validator")
+	if err != nil {
+		fmt.Printf("GetValidatorsByKind() error: %v\n", err)
+	} else {
+		for _, val := range validators {
+			stakes, err := api.GetValidatorStakes(val.Address, nil)
+			if err != nil {
+				fmt.Printf("GetValidatorStakes(%s) error: %v\n", val.Address, err)
+			} else {
+				for _, st := range stakes {
+					fmt.Printf("stake = %s\n", formatAsJSON(st))
+				}
+			}
+		}
 	}
 }

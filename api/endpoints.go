@@ -9,281 +9,6 @@ import (
 
 ///////////////
 
-type resultGetCoins struct {
-	Ok     bool `json:"ok"`
-	Result struct {
-		CountAllCoin int64  `json:"countAllCoin"`
-		TotalReserve string `json:"totalReserve"`
-		Coins        []struct {
-			Symbol      string `json:"symbol"`
-			Title       string `json:"title"`
-			Volume      string `json:"volume"`
-			Reserve     string `json:"reserve"`
-			Crr         int64  `json:"crr"`
-			LimitVolume string `json:"limitVolume"`
-			Creator     string `json:"creator"`
-			TxHash      string `json:"txHash"`
-			BlockId     string `json:"blockId"`
-			Price       string `json:"price"`
-			Delegated   string `json:"delegated"`
-			Avatar      string `json:"avatar"`
-		} `json:"coins"`
-	} `json:"result"`
-}
-
-// /coins
-// Get all coins
-func (api *API) GetCoins() ([]CoinInfo, error) {
-
-	var link = "/coins"
-
-	// request
-	res, err := api.client.R().Get(link)
-	if err = processConnectionError(res, err); err != nil {
-		return nil, err
-	}
-	// json decode
-	respValue, respErr := resultGetCoins{}, Error{}
-	err = universalJSONDecode(res.Body(), &respValue, &respErr, func() (bool, bool) {
-		return respValue.Ok, respErr.StatusCode != 0
-	})
-	if err != nil {
-		return nil, joinErrors(err, respErr)
-	}
-	// process result
-	return converterGetCoins(respValue)
-}
-
-///////////////
-
-type resultGetEvmAccounts struct {
-	Ok     bool `json:"ok"`
-	Result struct {
-		Count       uint64 `json:"count"`
-		EvmAccounts []struct {
-			CreatedAt                  string `json:"createdAt"`
-			UpdatedAt                  string `json:"updatedAt"`
-			Address                    string `json:"address"`
-			CreationEvmBlockHeight     uint64 `json:"creationEvmBlockHeight"`
-			CreationEvmTransactionHash string `json:"creationEvmTransactionHash"`
-		} `json:"evmAccounts"`
-	} `json:"result"`
-}
-
-// /evm-accounts
-// Get evm accounts
-func (api *API) GetEvmAccounts() ([]EvmAccount, error) {
-
-	var link = "/evm-accounts"
-
-	// request
-	res, err := api.client.R().Get(link)
-	if err = processConnectionError(res, err); err != nil {
-		return nil, err
-	}
-	// json decode
-	respValue, respErr := resultGetEvmAccounts{}, Error{}
-	err = universalJSONDecode(res.Body(), &respValue, &respErr, func() (bool, bool) {
-		return respValue.Ok, respErr.StatusCode != 0
-	})
-	if err != nil {
-		return nil, joinErrors(err, respErr)
-	}
-	// process result
-	return converterGetEvmAccounts(respValue)
-}
-
-///////////////
-
-type resultGetEvmContracts struct {
-	Ok     bool `json:"ok"`
-	Result struct {
-		Count        uint64 `json:"count"`
-		EvmContracts []struct {
-			CreatedAt                    string      `json:"createdAt"`
-			UpdatedAt                    string      `json:"updatedAt"`
-			Address                      string      `json:"address"`
-			Status                       string      `json:"status"`
-			Abi                          interface{} `json:"abi"`
-			ByteCode                     string      `json:"byteCode"`
-			DeploymentEvmAccountAddress  string      `json:"deploymentEvmAccountAddress"`
-			DeploymentEvmBlockHeight     uint64      `json:"deploymentEvmBlockHeight"`
-			DeploymentEvmTransactionHash string      `json:"deploymentEvmTransactionHash"`
-			DeploymentEvmReceiptId       uint64      `json:"deploymentEvmReceiptId"`
-		} `json:"evmContracts"`
-	} `json:"result"`
-}
-
-// /evm-contracts
-// Get evm contracts
-func (api *API) GetEvmContracts() ([]EvmContract, error) {
-
-	var link = "/evm-contracts"
-
-	// request
-	res, err := api.client.R().Get(link)
-	if err = processConnectionError(res, err); err != nil {
-		return nil, err
-	}
-	// json decode
-	respValue, respErr := resultGetEvmContracts{}, Error{}
-	err = universalJSONDecode(res.Body(), &respValue, &respErr, func() (bool, bool) {
-		return respValue.Ok, respErr.StatusCode != 0
-	})
-	if err != nil {
-		return nil, joinErrors(err, respErr)
-	}
-	// process result
-	return converterGetEvmContracts(respValue)
-}
-
-///////////////
-
-type resultGetEvmTransactions struct {
-	Ok     bool `json:"ok"`
-	Result struct {
-		Count           uint64 `json:"count"`
-		EvmTransactions []struct {
-			CreatedAt            string      `json:"createdAt"`
-			UpdatedAt            string      `json:"updatedAt"`
-			Hash                 string      `json:"hash"`
-			V                    string      `json:"v"`
-			R                    string      `json:"r"`
-			S                    string      `json:"s"`
-			Gas                  uint64      `json:"gas"`
-			Type                 uint64      `json:"type"`
-			Input                string      `json:"input"`
-			Nonce                uint64      `json:"nonce"`
-			Value                string      `json:"value"`
-			ChainId              uint64      `json:"chainId"`
-			GasPrice             uint64      `json:"gasPrice"`
-			AccessList           interface{} `json:"accessList"`
-			MaxFeePerGas         uint64      `json:"maxFeePerGas"`
-			MaxPriorityFeePerGas uint64      `json:"maxPriorityFeePerGas"`
-			ExtraData            interface{} `json:"extraData"`
-			From                 string      `json:"from"`
-			To                   string      `json:"to"`
-			EvmBlockHeight       uint64      `json:"evmBlockHeight"`
-		} `json:"evmTransactions"`
-	} `json:"result"`
-}
-
-// /evm-transactions
-// Get evm transactions
-func (api *API) GetEvmTransactions() ([]EvmTransaction, error) {
-
-	var link = "/evm-transactions"
-
-	// request
-	res, err := api.client.R().Get(link)
-	if err = processConnectionError(res, err); err != nil {
-		return nil, err
-	}
-	// json decode
-	respValue, respErr := resultGetEvmTransactions{}, Error{}
-	err = universalJSONDecode(res.Body(), &respValue, &respErr, func() (bool, bool) {
-		return respValue.Ok, respErr.StatusCode != 0
-	})
-	if err != nil {
-		return nil, joinErrors(err, respErr)
-	}
-	// process result
-	return converterGetEvmTransactions(respValue)
-}
-
-///////////////
-
-type resultGetAllNFT struct {
-	Ok     bool `json:"ok"`
-	Result struct {
-		Count int64 `json:"count"`
-		Nfts  []struct {
-			NftCollection string `json:"nftCollection"`
-			NftId         string `json:"nftId"`
-			Quantity      string `json:"quantity"`
-			Reserve       string `json:"reserve"`
-			Sender        string `json:"sender"`
-			Recipient     string `json:"recipient"`
-			TxHash        string `json:"txHash"`
-		} `json:"nfts"`
-	} `json:"result"`
-}
-
-// /nfts
-// Get all nfts
-func (api *API) GetAllNFT() ([]NFT, error) {
-
-	var link = "/nfts"
-
-	// request
-	res, err := api.client.R().Get(link)
-	if err = processConnectionError(res, err); err != nil {
-		return nil, err
-	}
-	// json decode
-	respValue, respErr := resultGetAllNFT{}, Error{}
-	err = universalJSONDecode(res.Body(), &respValue, &respErr, func() (bool, bool) {
-		return respValue.Ok, respErr.StatusCode != 0
-	})
-	if err != nil {
-		return nil, joinErrors(err, respErr)
-	}
-	// process result
-	return converterGetAllNFT(respValue)
-}
-
-///////////////
-
-type resultGetTxs struct {
-	Ok     bool `json:"ok"`
-	Result struct {
-		Count int64 `json:"count"`
-		Txs   []struct {
-			CreatedAt string `json:"createdAt"`
-			UpdatedAt string `json:"updatedAt"`
-			Hash      string `json:"hash"`
-			Timestamp string `json:"timestamp"`
-			Status    uint64 `json:"status"`
-			Type      string `json:"type"`
-			Fee       struct {
-				Coin   string `json:"coin"`
-				Amount string `json:"amount"`
-			} `json:"fee"`
-			Data    interface{} `json:"data"`
-			Nonce   int64       `json:"nonce"`
-			BlockId int64       `json:"blockId"`
-			Message string      `json:"message"`
-			From    string      `json:"from"`
-			To      string      `json:"to"`
-		} `json:"txs"`
-	} `json:"result"`
-}
-
-// /txs
-// Get all transactions
-func (api *API) GetTxs() ([]TxInfo, error) {
-
-	var link = "/txs"
-
-	// request
-	res, err := api.client.R().Get(link)
-	if err = processConnectionError(res, err); err != nil {
-		return nil, err
-	}
-	// json decode
-	respValue, respErr := resultGetTxs{}, Error{}
-	err = universalJSONDecode(res.Body(), &respValue, &respErr, func() (bool, bool) {
-		return respValue.Ok, respErr.StatusCode != 0
-	})
-	if err != nil {
-		return nil, joinErrors(err, respErr)
-	}
-	// process result
-	return converterGetTxs(respValue)
-}
-
-///////////////
-
 type resultGetAddress struct {
 	Ok     bool `json:"ok"`
 	Result struct {
@@ -338,45 +63,42 @@ func (api *API) GetAddress(id string) (*AddressInfo, error) {
 
 ///////////////
 
-type resultGetBlock struct {
+type resultGetAddressTxs struct {
 	Ok     bool `json:"ok"`
 	Result struct {
-		CreatedAt       string `json:"createdAt"`
-		UpdatedAt       string `json:"updatedAt"`
-		Height          int64  `json:"height"`
-		Date            string `json:"date"`
-		Hash            string `json:"hash"`
-		Size            int64  `json:"size"`
-		Reward          int64  `json:"reward"`
-		BlockTime       int64  `json:"blockTime"`
-		TxsCount        int64  `json:"txsCount"`
-		ValidatorsCount int64  `json:"validatorsCount"`
-		ProposerId      string `json:"proposerId"`
-		EvmBlock        struct {
-			CreatedAt         string      `json:"createdAt"`
-			UpdatedAt         string      `json:"updatedAt"`
-			Height            uint64      `json:"height"`
-			Hash              string      `json:"hash"`
-			Date              string      `json:"date"`
-			Miner             string      `json:"miner"`
-			BaseFeePerGas     uint64      `json:"baseFeePerGas"`
-			GasUsed           uint64      `json:"gasUsed"`
-			GasLimit          uint64      `json:"gasLimit"`
-			Data              interface{} `json:"data"`
-			TransactionsCount uint64      `json:"transactionsCount"`
-			ReceiptsCount     uint64      `json:"receiptsCount"`
-		} `json:"evmBlock"`
+		Count int64 `json:"count"`
+		Txs   []struct {
+			CreatedAt string `json:"createdAt"`
+			UpdatedAt string `json:"updatedAt"`
+			Hash      string `json:"hash"`
+			Timestamp string `json:"timestamp"`
+			Status    uint64 `json:"status"`
+			Type      string `json:"type"`
+			Fee       struct {
+				Coin   string `json:"coin"`
+				Amount string `json:"amount"`
+			} `json:"fee"`
+			Data    interface{} `json:"data"`
+			Nonce   int64       `json:"nonce"`
+			BlockId int64       `json:"blockId"`
+			Message string      `json:"message"`
+			From    string      `json:"from"`
+			To      string      `json:"to"`
+		} `json:"txs"`
 	} `json:"result"`
 }
 
-// /block/{height}
-// Get block by id
-func (api *API) GetBlockByHeight(height uint64) (*BlockInfo, error) {
+// /address/{id}/txs
+// Get address's transactions
+func (api *API) GetAddressTxs(id string, opt *OptionalParams) ([]TxInfo, error) {
 
 	var r = strings.NewReplacer(
-		"{height}", fmt.Sprintf("%d", height),
+		"{id}", fmt.Sprintf("%s", id),
 	)
-	var link = r.Replace("/block/{height}")
+	var link = r.Replace("/address/{id}/txs")
+	if opt != nil {
+		link += opt.String()
+	}
 
 	// request
 	res, err := api.client.R().Get(link)
@@ -384,7 +106,7 @@ func (api *API) GetBlockByHeight(height uint64) (*BlockInfo, error) {
 		return nil, err
 	}
 	// json decode
-	respValue, respErr := resultGetBlock{}, Error{}
+	respValue, respErr := resultGetAddressTxs{}, Error{}
 	err = universalJSONDecode(res.Body(), &respValue, &respErr, func() (bool, bool) {
 		return respValue.Ok, respErr.StatusCode != 0
 	})
@@ -392,24 +114,35 @@ func (api *API) GetBlockByHeight(height uint64) (*BlockInfo, error) {
 		return nil, joinErrors(err, respErr)
 	}
 	// process result
-	return converterGetBlockByHeight(respValue)
+	return converterGetAddressTxs(respValue)
 }
 
 ///////////////
 
-type resultGetCoin struct {
-	Ok     bool        `json:"ok"`
-	Result interface{} `json:"result"`
+type resultGetAllNFT struct {
+	Ok     bool `json:"ok"`
+	Result struct {
+		Count int64 `json:"count"`
+		Nfts  []struct {
+			NftCollection string `json:"nftCollection"`
+			NftId         string `json:"nftId"`
+			Quantity      string `json:"quantity"`
+			Reserve       string `json:"reserve"`
+			Sender        string `json:"sender"`
+			Recipient     string `json:"recipient"`
+			TxHash        string `json:"txHash"`
+		} `json:"nfts"`
+	} `json:"result"`
 }
 
-// /coin/{coin}
-// Get coin
-func (api *API) GetCoin(coin string) (*CoinInfo, error) {
+// /nfts
+// Get all nfts
+func (api *API) GetAllNFT(opt *OptionalParams) ([]NFT, error) {
 
-	var r = strings.NewReplacer(
-		"{coin}", fmt.Sprintf("%s", coin),
-	)
-	var link = r.Replace("/coin/{coin}")
+	var link = "/nfts"
+	if opt != nil {
+		link += opt.String()
+	}
 
 	// request
 	res, err := api.client.R().Get(link)
@@ -417,7 +150,7 @@ func (api *API) GetCoin(coin string) (*CoinInfo, error) {
 		return nil, err
 	}
 	// json decode
-	respValue, respErr := resultGetCoin{}, Error{}
+	respValue, respErr := resultGetAllNFT{}, Error{}
 	err = universalJSONDecode(res.Body(), &respValue, &respErr, func() (bool, bool) {
 		return respValue.Ok, respErr.StatusCode != 0
 	})
@@ -425,7 +158,7 @@ func (api *API) GetCoin(coin string) (*CoinInfo, error) {
 		return nil, joinErrors(err, respErr)
 	}
 	// process result
-	return converterGetCoin(respValue)
+	return converterGetAllNFT(respValue)
 }
 
 ///////////////
@@ -513,22 +246,39 @@ func (api *API) GetTxByHash(hash string) (*TxInfo, error) {
 
 ///////////////
 
-type resultGetValidator struct {
+type resultGetTxs struct {
 	Ok     bool `json:"ok"`
 	Result struct {
-		Address string `json:"address"`
-		BlockId int64  `json:"blockId"`
+		Count int64 `json:"count"`
+		Txs   []struct {
+			CreatedAt string `json:"createdAt"`
+			UpdatedAt string `json:"updatedAt"`
+			Hash      string `json:"hash"`
+			Timestamp string `json:"timestamp"`
+			Status    uint64 `json:"status"`
+			Type      string `json:"type"`
+			Fee       struct {
+				Coin   string `json:"coin"`
+				Amount string `json:"amount"`
+			} `json:"fee"`
+			Data    interface{} `json:"data"`
+			Nonce   int64       `json:"nonce"`
+			BlockId int64       `json:"blockId"`
+			Message string      `json:"message"`
+			From    string      `json:"from"`
+			To      string      `json:"to"`
+		} `json:"txs"`
 	} `json:"result"`
 }
 
-// /validator/{address}
-// Get validator by address (public key)
-func (api *API) GetValidator(address string) (*Validator, error) {
+// /txs
+// Get all transactions
+func (api *API) GetTxs(opt *OptionalParams) ([]TxInfo, error) {
 
-	var r = strings.NewReplacer(
-		"{address}", fmt.Sprintf("%s", address),
-	)
-	var link = r.Replace("/validator/{address}")
+	var link = "/txs"
+	if opt != nil {
+		link += opt.String()
+	}
 
 	// request
 	res, err := api.client.R().Get(link)
@@ -536,7 +286,7 @@ func (api *API) GetValidator(address string) (*Validator, error) {
 		return nil, err
 	}
 	// json decode
-	respValue, respErr := resultGetValidator{}, Error{}
+	respValue, respErr := resultGetTxs{}, Error{}
 	err = universalJSONDecode(res.Body(), &respValue, &respErr, func() (bool, bool) {
 		return respValue.Ok, respErr.StatusCode != 0
 	})
@@ -544,7 +294,757 @@ func (api *API) GetValidator(address string) (*Validator, error) {
 		return nil, joinErrors(err, respErr)
 	}
 	// process result
-	return converterGetValidator(respValue)
+	return converterGetTxs(respValue)
+}
+
+///////////////
+
+type resultGetCoins struct {
+	Ok     bool `json:"ok"`
+	Result struct {
+		CountAllCoin int64  `json:"countAllCoin"`
+		TotalReserve string `json:"totalReserve"`
+		Coins        []struct {
+			Symbol      string `json:"symbol"`
+			Title       string `json:"title"`
+			Volume      string `json:"volume"`
+			Reserve     string `json:"reserve"`
+			Crr         int64  `json:"crr"`
+			LimitVolume string `json:"limitVolume"`
+			Creator     string `json:"creator"`
+			TxHash      string `json:"txHash"`
+			BlockId     string `json:"blockId"`
+			Price       string `json:"price"`
+			Delegated   string `json:"delegated"`
+			Avatar      string `json:"avatar"`
+		} `json:"coins"`
+	} `json:"result"`
+}
+
+// /coins
+// Get all coins
+func (api *API) GetCoins(opt *OptionalParams) ([]CoinInfo, error) {
+
+	var link = "/coins"
+	if opt != nil {
+		link += opt.String()
+	}
+
+	// request
+	res, err := api.client.R().Get(link)
+	if err = processConnectionError(res, err); err != nil {
+		return nil, err
+	}
+	// json decode
+	respValue, respErr := resultGetCoins{}, Error{}
+	err = universalJSONDecode(res.Body(), &respValue, &respErr, func() (bool, bool) {
+		return respValue.Ok, respErr.StatusCode != 0
+	})
+	if err != nil {
+		return nil, joinErrors(err, respErr)
+	}
+	// process result
+	return converterGetCoins(respValue)
+}
+
+///////////////
+
+type resultGetCoin struct {
+	Ok     bool        `json:"ok"`
+	Result interface{} `json:"result"`
+}
+
+// /coin/{coin}
+// Get coin
+func (api *API) GetCoin(coin string) (*CoinInfo, error) {
+
+	var r = strings.NewReplacer(
+		"{coin}", fmt.Sprintf("%s", coin),
+	)
+	var link = r.Replace("/coin/{coin}")
+
+	// request
+	res, err := api.client.R().Get(link)
+	if err = processConnectionError(res, err); err != nil {
+		return nil, err
+	}
+	// json decode
+	respValue, respErr := resultGetCoin{}, Error{}
+	err = universalJSONDecode(res.Body(), &respValue, &respErr, func() (bool, bool) {
+		return respValue.Ok, respErr.StatusCode != 0
+	})
+	if err != nil {
+		return nil, joinErrors(err, respErr)
+	}
+	// process result
+	return converterGetCoin(respValue)
+}
+
+///////////////
+
+type resultGetBlock struct {
+	Ok     bool `json:"ok"`
+	Result struct {
+		CreatedAt       string `json:"createdAt"`
+		UpdatedAt       string `json:"updatedAt"`
+		Height          int64  `json:"height"`
+		Date            string `json:"date"`
+		Hash            string `json:"hash"`
+		Size            int64  `json:"size"`
+		Reward          int64  `json:"reward"`
+		BlockTime       int64  `json:"blockTime"`
+		TxsCount        int64  `json:"txsCount"`
+		ValidatorsCount int64  `json:"validatorsCount"`
+		ProposerId      string `json:"proposerId"`
+		EvmBlock        struct {
+			CreatedAt         string      `json:"createdAt"`
+			UpdatedAt         string      `json:"updatedAt"`
+			Height            uint64      `json:"height"`
+			Hash              string      `json:"hash"`
+			Date              string      `json:"date"`
+			Miner             string      `json:"miner"`
+			BaseFeePerGas     uint64      `json:"baseFeePerGas"`
+			GasUsed           uint64      `json:"gasUsed"`
+			GasLimit          uint64      `json:"gasLimit"`
+			Data              interface{} `json:"data"`
+			TransactionsCount uint64      `json:"transactionsCount"`
+			ReceiptsCount     uint64      `json:"receiptsCount"`
+		} `json:"evmBlock"`
+	} `json:"result"`
+}
+
+// /block/{height}
+// Get block by id
+func (api *API) GetBlockByHeight(height uint64) (*BlockInfo, error) {
+
+	var r = strings.NewReplacer(
+		"{height}", fmt.Sprintf("%d", height),
+	)
+	var link = r.Replace("/block/{height}")
+
+	// request
+	res, err := api.client.R().Get(link)
+	if err = processConnectionError(res, err); err != nil {
+		return nil, err
+	}
+	// json decode
+	respValue, respErr := resultGetBlock{}, Error{}
+	err = universalJSONDecode(res.Body(), &respValue, &respErr, func() (bool, bool) {
+		return respValue.Ok, respErr.StatusCode != 0
+	})
+	if err != nil {
+		return nil, joinErrors(err, respErr)
+	}
+	// process result
+	return converterGetBlockByHeight(respValue)
+}
+
+///////////////
+
+type resultGetBlockTransactions struct {
+	Ok     bool `json:"ok"`
+	Result struct {
+		Count int64 `json:"count"`
+		Txs   []struct {
+			CreatedAt string `json:"createdAt"`
+			UpdatedAt string `json:"updatedAt"`
+			Hash      string `json:"hash"`
+			Timestamp string `json:"timestamp"`
+			Status    uint64 `json:"status"`
+			Type      string `json:"type"`
+			Fee       struct {
+				Coin   string `json:"coin"`
+				Amount string `json:"amount"`
+			} `json:"fee"`
+			Data    interface{} `json:"data"`
+			Nonce   int64       `json:"nonce"`
+			BlockId int64       `json:"blockId"`
+			Message string      `json:"message"`
+			From    string      `json:"from"`
+			To      string      `json:"to"`
+		} `json:"txs"`
+	} `json:"result"`
+}
+
+// /block/{height}/txs
+// Get block's transactions
+func (api *API) GetBlockTransactions(height uint64) ([]TxInfo, error) {
+
+	var r = strings.NewReplacer(
+		"{height}", fmt.Sprintf("%d", height),
+	)
+	var link = r.Replace("/block/{height}/txs")
+
+	// request
+	res, err := api.client.R().Get(link)
+	if err = processConnectionError(res, err); err != nil {
+		return nil, err
+	}
+	// json decode
+	respValue, respErr := resultGetBlockTransactions{}, Error{}
+	err = universalJSONDecode(res.Body(), &respValue, &respErr, func() (bool, bool) {
+		return respValue.Ok, respErr.StatusCode != 0
+	})
+	if err != nil {
+		return nil, joinErrors(err, respErr)
+	}
+	// process result
+	return converterGetBlockTransactions(respValue)
+}
+
+///////////////
+
+type resultGetEvmContracts struct {
+	Ok     bool `json:"ok"`
+	Result struct {
+		Count        uint64 `json:"count"`
+		EvmContracts []struct {
+			CreatedAt                    string      `json:"createdAt"`
+			UpdatedAt                    string      `json:"updatedAt"`
+			Address                      string      `json:"address"`
+			Status                       string      `json:"status"`
+			Abi                          interface{} `json:"abi"`
+			ByteCode                     string      `json:"byteCode"`
+			DeploymentEvmAccountAddress  string      `json:"deploymentEvmAccountAddress"`
+			DeploymentEvmBlockHeight     uint64      `json:"deploymentEvmBlockHeight"`
+			DeploymentEvmTransactionHash string      `json:"deploymentEvmTransactionHash"`
+			DeploymentEvmReceiptId       uint64      `json:"deploymentEvmReceiptId"`
+		} `json:"evmContracts"`
+	} `json:"result"`
+}
+
+// /evm-contracts
+// Get evm contracts
+func (api *API) GetEvmContracts(opt *OptionalParams) ([]EvmContract, error) {
+
+	var link = "/evm-contracts"
+	if opt != nil {
+		link += opt.String()
+	}
+
+	// request
+	res, err := api.client.R().Get(link)
+	if err = processConnectionError(res, err); err != nil {
+		return nil, err
+	}
+	// json decode
+	respValue, respErr := resultGetEvmContracts{}, Error{}
+	err = universalJSONDecode(res.Body(), &respValue, &respErr, func() (bool, bool) {
+		return respValue.Ok, respErr.StatusCode != 0
+	})
+	if err != nil {
+		return nil, joinErrors(err, respErr)
+	}
+	// process result
+	return converterGetEvmContracts(respValue)
+}
+
+///////////////
+
+type resultGetEvmTransactions struct {
+	Ok     bool `json:"ok"`
+	Result struct {
+		Count           uint64 `json:"count"`
+		EvmTransactions []struct {
+			CreatedAt            string      `json:"createdAt"`
+			UpdatedAt            string      `json:"updatedAt"`
+			Hash                 string      `json:"hash"`
+			V                    string      `json:"v"`
+			R                    string      `json:"r"`
+			S                    string      `json:"s"`
+			Gas                  uint64      `json:"gas"`
+			Type                 uint64      `json:"type"`
+			Input                string      `json:"input"`
+			Nonce                uint64      `json:"nonce"`
+			Value                string      `json:"value"`
+			ChainId              uint64      `json:"chainId"`
+			GasPrice             uint64      `json:"gasPrice"`
+			AccessList           interface{} `json:"accessList"`
+			MaxFeePerGas         uint64      `json:"maxFeePerGas"`
+			MaxPriorityFeePerGas uint64      `json:"maxPriorityFeePerGas"`
+			ExtraData            interface{} `json:"extraData"`
+			From                 string      `json:"from"`
+			To                   string      `json:"to"`
+			EvmBlockHeight       uint64      `json:"evmBlockHeight"`
+		} `json:"evmTransactions"`
+	} `json:"result"`
+}
+
+// /evm-transactions
+// Get evm transactions
+func (api *API) GetEvmTransactions(opt *OptionalParams) ([]EvmTransaction, error) {
+
+	var link = "/evm-transactions"
+	if opt != nil {
+		link += opt.String()
+	}
+
+	// request
+	res, err := api.client.R().Get(link)
+	if err = processConnectionError(res, err); err != nil {
+		return nil, err
+	}
+	// json decode
+	respValue, respErr := resultGetEvmTransactions{}, Error{}
+	err = universalJSONDecode(res.Body(), &respValue, &respErr, func() (bool, bool) {
+		return respValue.Ok, respErr.StatusCode != 0
+	})
+	if err != nil {
+		return nil, joinErrors(err, respErr)
+	}
+	// process result
+	return converterGetEvmTransactions(respValue)
+}
+
+///////////////
+
+type resultGetEvmAccounts struct {
+	Ok     bool `json:"ok"`
+	Result struct {
+		Count       uint64 `json:"count"`
+		EvmAccounts []struct {
+			CreatedAt                  string `json:"createdAt"`
+			UpdatedAt                  string `json:"updatedAt"`
+			Address                    string `json:"address"`
+			CreationEvmBlockHeight     uint64 `json:"creationEvmBlockHeight"`
+			CreationEvmTransactionHash string `json:"creationEvmTransactionHash"`
+		} `json:"evmAccounts"`
+	} `json:"result"`
+}
+
+// /evm-accounts
+// Get evm accounts
+func (api *API) GetEvmAccounts(opt *OptionalParams) ([]EvmAccount, error) {
+
+	var link = "/evm-accounts"
+	if opt != nil {
+		link += opt.String()
+	}
+
+	// request
+	res, err := api.client.R().Get(link)
+	if err = processConnectionError(res, err); err != nil {
+		return nil, err
+	}
+	// json decode
+	respValue, respErr := resultGetEvmAccounts{}, Error{}
+	err = universalJSONDecode(res.Body(), &respValue, &respErr, func() (bool, bool) {
+		return respValue.Ok, respErr.StatusCode != 0
+	})
+	if err != nil {
+		return nil, joinErrors(err, respErr)
+	}
+	// process result
+	return converterGetEvmAccounts(respValue)
+}
+
+///////////////
+
+type resultGetEvmContract struct {
+	Ok     bool `json:"ok"`
+	Result struct {
+		CreatedAt                    string      `json:"createdAt"`
+		UpdatedAt                    string      `json:"updatedAt"`
+		Address                      string      `json:"address"`
+		Status                       string      `json:"status"`
+		Abi                          interface{} `json:"abi"`
+		ByteCode                     string      `json:"byteCode"`
+		DeploymentEvmAccountAddress  string      `json:"deploymentEvmAccountAddress"`
+		DeploymentEvmBlockHeight     uint64      `json:"deploymentEvmBlockHeight"`
+		DeploymentEvmTransactionHash string      `json:"deploymentEvmTransactionHash"`
+		DeploymentEvmReceiptId       uint64      `json:"deploymentEvmReceiptId"`
+	} `json:"result"`
+}
+
+// /evm-contracts/{address}
+// Get evm contract by address
+func (api *API) GetEvmContract(address string) (*EvmContract, error) {
+
+	var r = strings.NewReplacer(
+		"{address}", fmt.Sprintf("%s", address),
+	)
+	var link = r.Replace("/evm-contracts/{address}")
+
+	// request
+	res, err := api.client.R().Get(link)
+	if err = processConnectionError(res, err); err != nil {
+		return nil, err
+	}
+	// json decode
+	respValue, respErr := resultGetEvmContract{}, Error{}
+	err = universalJSONDecode(res.Body(), &respValue, &respErr, func() (bool, bool) {
+		return respValue.Ok, respErr.StatusCode != 0
+	})
+	if err != nil {
+		return nil, joinErrors(err, respErr)
+	}
+	// process result
+	return converterGetEvmContract(respValue)
+}
+
+///////////////
+
+type resultGetEvmTransaction struct {
+	Ok     bool `json:"ok"`
+	Result struct {
+		CreatedAt            string      `json:"createdAt"`
+		UpdatedAt            string      `json:"updatedAt"`
+		Hash                 string      `json:"hash"`
+		V                    string      `json:"v"`
+		R                    string      `json:"r"`
+		S                    string      `json:"s"`
+		Gas                  uint64      `json:"gas"`
+		Type                 uint64      `json:"type"`
+		Input                string      `json:"input"`
+		Nonce                uint64      `json:"nonce"`
+		Value                string      `json:"value"`
+		ChainId              uint64      `json:"chainId"`
+		GasPrice             uint64      `json:"gasPrice"`
+		AccessList           interface{} `json:"accessList"`
+		MaxFeePerGas         uint64      `json:"maxFeePerGas"`
+		MaxPriorityFeePerGas uint64      `json:"maxPriorityFeePerGas"`
+		ExtraData            interface{} `json:"extraData"`
+		From                 string      `json:"from"`
+		To                   string      `json:"to"`
+		EvmBlockHeight       uint64      `json:"evmBlockHeight"`
+	} `json:"result"`
+}
+
+// /evm-transactions/{hash}
+// Get evm transaction by hash
+func (api *API) GetEvmTransaction(hash string) (*EvmTransaction, error) {
+
+	var r = strings.NewReplacer(
+		"{hash}", fmt.Sprintf("%s", hash),
+	)
+	var link = r.Replace("/evm-transactions/{hash}")
+
+	// request
+	res, err := api.client.R().Get(link)
+	if err = processConnectionError(res, err); err != nil {
+		return nil, err
+	}
+	// json decode
+	respValue, respErr := resultGetEvmTransaction{}, Error{}
+	err = universalJSONDecode(res.Body(), &respValue, &respErr, func() (bool, bool) {
+		return respValue.Ok, respErr.StatusCode != 0
+	})
+	if err != nil {
+		return nil, joinErrors(err, respErr)
+	}
+	// process result
+	return converterGetEvmTransaction(respValue)
+}
+
+///////////////
+
+type resultGetEvmAccount struct {
+	Ok     bool `json:"ok"`
+	Result struct {
+		CreatedAt                  string `json:"createdAt"`
+		UpdatedAt                  string `json:"updatedAt"`
+		Address                    string `json:"address"`
+		CreationEvmBlockHeight     uint64 `json:"creationEvmBlockHeight"`
+		CreationEvmTransactionHash string `json:"creationEvmTransactionHash"`
+	} `json:"result"`
+}
+
+// /evm-accounts/{address}
+// Get evm account by address
+func (api *API) GetEvmAccount(address string) (*EvmAccount, error) {
+
+	var r = strings.NewReplacer(
+		"{address}", fmt.Sprintf("%s", address),
+	)
+	var link = r.Replace("/evm-accounts/{address}")
+
+	// request
+	res, err := api.client.R().Get(link)
+	if err = processConnectionError(res, err); err != nil {
+		return nil, err
+	}
+	// json decode
+	respValue, respErr := resultGetEvmAccount{}, Error{}
+	err = universalJSONDecode(res.Body(), &respValue, &respErr, func() (bool, bool) {
+		return respValue.Ok, respErr.StatusCode != 0
+	})
+	if err != nil {
+		return nil, joinErrors(err, respErr)
+	}
+	// process result
+	return converterGetEvmAccount(respValue)
+}
+
+///////////////
+
+type resultGetEvmContractTransactions struct {
+	Ok     bool `json:"ok"`
+	Result struct {
+		Count                   uint64 `json:"count"`
+		EvmContractTransactions []struct {
+			CreatedAt            string      `json:"createdAt"`
+			UpdatedAt            string      `json:"updatedAt"`
+			Hash                 string      `json:"hash"`
+			V                    string      `json:"v"`
+			R                    string      `json:"r"`
+			S                    string      `json:"s"`
+			Gas                  uint64      `json:"gas"`
+			Type                 uint64      `json:"type"`
+			Input                string      `json:"input"`
+			Nonce                uint64      `json:"nonce"`
+			Value                string      `json:"value"`
+			ChainId              uint64      `json:"chainId"`
+			GasPrice             uint64      `json:"gasPrice"`
+			AccessList           interface{} `json:"accessList"`
+			MaxFeePerGas         uint64      `json:"maxFeePerGas"`
+			MaxPriorityFeePerGas uint64      `json:"maxPriorityFeePerGas"`
+			ExtraData            interface{} `json:"extraData"`
+			From                 string      `json:"from"`
+			To                   string      `json:"to"`
+			EvmBlockHeight       uint64      `json:"evmBlockHeight"`
+		} `json:"evmContractTransactions"`
+	} `json:"result"`
+}
+
+// /evm-contracts/{address}/transactions
+// Get evm contract transactions
+func (api *API) GetEvmContractTransactions(address string, opt *OptionalParams) ([]EvmTransaction, error) {
+
+	var r = strings.NewReplacer(
+		"{address}", fmt.Sprintf("%s", address),
+	)
+	var link = r.Replace("/evm-contracts/{address}/transactions")
+	if opt != nil {
+		link += opt.String()
+	}
+
+	// request
+	res, err := api.client.R().Get(link)
+	if err = processConnectionError(res, err); err != nil {
+		return nil, err
+	}
+	// json decode
+	respValue, respErr := resultGetEvmContractTransactions{}, Error{}
+	err = universalJSONDecode(res.Body(), &respValue, &respErr, func() (bool, bool) {
+		return respValue.Ok, respErr.StatusCode != 0
+	})
+	if err != nil {
+		return nil, joinErrors(err, respErr)
+	}
+	// process result
+	return converterGetEvmContractTransactions(respValue)
+}
+
+///////////////
+
+type resultGetEvmContractEvents struct {
+	Ok     bool `json:"ok"`
+	Result struct {
+		Count             uint64 `json:"count"`
+		EvmContractEvents []struct {
+			CreatedAt          string      `json:"createdAt"`
+			UpdatedAt          string      `json:"updatedAt"`
+			Id                 uint64      `json:"id"`
+			Root               string      `json:"root"`
+			Type               uint64      `json:"type"`
+			Status             bool        `json:"status"`
+			GasUsed            uint64      `json:"gasUsed"`
+			LogsBloom          string      `json:"logsBloom"`
+			TransactionIndex   uint64      `json:"transactionIndex"`
+			CumulativeGasUsed  uint64      `json:"cumulativeGasUsed"`
+			ExtraData          interface{} `json:"extraData"`
+			EvmBlockHeight     uint64      `json:"evmBlockHeight"`
+			EvmTransactionHash string      `json:"evmTransactionHash"`
+			ContractAddress    string      `json:"contractAddress"`
+			EvmReceiptLogs     []struct {
+				CreatedAt          string      `json:"createdAt"`
+				UpdatedAt          string      `json:"updatedAt"`
+				Id                 uint64      `json:"id"`
+				Data               string      `json:"data"`
+				Address            string      `json:"address"`
+				Removed            bool        `json:"removed"`
+				LogIndex           uint64      `json:"logIndex"`
+				ExtraData          interface{} `json:"extraData"`
+				EvmBlockHeight     uint64      `json:"evmBlockHeight"`
+				EvmTransactionHash string      `json:"evmTransactionHash"`
+				EvmReceiptId       uint64      `json:"evmReceiptId"`
+				Topics             []string    `json:"topics"`
+			} `json:"evmReceiptLogs"`
+			EvmTransaction struct {
+				CreatedAt            string      `json:"createdAt"`
+				UpdatedAt            string      `json:"updatedAt"`
+				Hash                 string      `json:"hash"`
+				V                    string      `json:"v"`
+				R                    string      `json:"r"`
+				S                    string      `json:"s"`
+				Gas                  uint64      `json:"gas"`
+				Type                 uint64      `json:"type"`
+				Input                string      `json:"input"`
+				Nonce                uint64      `json:"nonce"`
+				Value                string      `json:"value"`
+				ChainId              uint64      `json:"chainId"`
+				GasPrice             uint64      `json:"gasPrice"`
+				AccessList           interface{} `json:"accessList"`
+				MaxFeePerGas         uint64      `json:"maxFeePerGas"`
+				MaxPriorityFeePerGas uint64      `json:"maxPriorityFeePerGas"`
+				ExtraData            interface{} `json:"extraData"`
+				From                 string      `json:"from"`
+				To                   string      `json:"to"`
+				EvmBlockHeight       uint64      `json:"evmBlockHeight"`
+			} `json:"evmTransaction"`
+		} `json:"evmContractEvents"`
+	} `json:"result"`
+}
+
+// /evm-contracts/{address}/events
+// Get evm contract events
+func (api *API) GetEvmContractEvents(address string, opt *OptionalParams) ([]EvmEvent, error) {
+
+	var r = strings.NewReplacer(
+		"{address}", fmt.Sprintf("%s", address),
+	)
+	var link = r.Replace("/evm-contracts/{address}/events")
+	if opt != nil {
+		link += opt.String()
+	}
+
+	// request
+	res, err := api.client.R().Get(link)
+	if err = processConnectionError(res, err); err != nil {
+		return nil, err
+	}
+	// json decode
+	respValue, respErr := resultGetEvmContractEvents{}, Error{}
+	err = universalJSONDecode(res.Body(), &respValue, &respErr, func() (bool, bool) {
+		return respValue.Ok, respErr.StatusCode != 0
+	})
+	if err != nil {
+		return nil, joinErrors(err, respErr)
+	}
+	// process result
+	return converterGetEvmContractEvents(respValue)
+}
+
+///////////////
+
+type resultGetEvmAccountBalances struct {
+	Ok     bool `json:"ok"`
+	Result struct {
+		Count                  uint64 `json:"count"`
+		EvmTokenAccountBalance []struct {
+			Address                      string `json:"address"`
+			CosmosAccountAddress         string `json:"cosmosAccountAddress"`
+			CreationEvmBlockHeight       uint64 `json:"creationEvmBlockHeight"`
+			CreationEvmTransactionHash   string `json:"creationEvmTransactionHash"`
+			EvmAccountERC20TokenBalances []struct {
+				EvmTokenAddress   string `json:"evmTokenAddress"`
+				EvmAccountAddress string `json:"evmAccountAddress"`
+				Amount            string `json:"amount"`
+				EvmToken          struct {
+					Address            string `json:"address"`
+					Symbol             string `json:"symbol"`
+					Title              string `json:"title"`
+					Decimals           uint64 `json:"decimals"`
+					TotalSupply        uint64 `json:"totalSupply"`
+					EvmContractAddress string `json:"evmContractAddress"`
+					EvmTokenTypeName   string `json:"evmTokenTypeName"`
+					EvmContract        struct {
+						CreatedAt                    string      `json:"createdAt"`
+						UpdatedAt                    string      `json:"updatedAt"`
+						Address                      string      `json:"address"`
+						Status                       string      `json:"status"`
+						Abi                          interface{} `json:"abi"`
+						ByteCode                     string      `json:"byteCode"`
+						DeploymentEvmAccountAddress  string      `json:"deploymentEvmAccountAddress"`
+						DeploymentEvmBlockHeight     uint64      `json:"deploymentEvmBlockHeight"`
+						DeploymentEvmTransactionHash string      `json:"deploymentEvmTransactionHash"`
+						DeploymentEvmReceiptId       uint64      `json:"deploymentEvmReceiptId"`
+					} `json:"evmContract"`
+				} `json:"evmToken"`
+			} `json:"evmAccountERC20TokenBalances"`
+			EvmAccountERC721TokenBalance []struct {
+				EvmTokenAddress   string `json:"evmTokenAddress"`
+				EvmAccountAddress string `json:"evmAccountAddress"`
+				Amount            string `json:"amount"`
+				EvmToken          struct {
+					Address            string `json:"address"`
+					Symbol             string `json:"symbol"`
+					Title              string `json:"title"`
+					Decimals           uint64 `json:"decimals"`
+					TotalSupply        uint64 `json:"totalSupply"`
+					EvmContractAddress string `json:"evmContractAddress"`
+					EvmTokenTypeName   string `json:"evmTokenTypeName"`
+					EvmContract        struct {
+						CreatedAt                    string      `json:"createdAt"`
+						UpdatedAt                    string      `json:"updatedAt"`
+						Address                      string      `json:"address"`
+						Status                       string      `json:"status"`
+						Abi                          interface{} `json:"abi"`
+						ByteCode                     string      `json:"byteCode"`
+						DeploymentEvmAccountAddress  string      `json:"deploymentEvmAccountAddress"`
+						DeploymentEvmBlockHeight     uint64      `json:"deploymentEvmBlockHeight"`
+						DeploymentEvmTransactionHash string      `json:"deploymentEvmTransactionHash"`
+						DeploymentEvmReceiptId       uint64      `json:"deploymentEvmReceiptId"`
+					} `json:"evmContract"`
+				} `json:"evmToken"`
+			} `json:"evmAccountERC721TokenBalance"`
+			EvmAccountERC1155TokenBalance []struct {
+				EvmTokenAddress   string `json:"evmTokenAddress"`
+				EvmAccountAddress string `json:"evmAccountAddress"`
+				Amount            string `json:"amount"`
+				EvmToken          struct {
+					Address            string `json:"address"`
+					Symbol             string `json:"symbol"`
+					Title              string `json:"title"`
+					Decimals           uint64 `json:"decimals"`
+					TotalSupply        uint64 `json:"totalSupply"`
+					EvmContractAddress string `json:"evmContractAddress"`
+					EvmTokenTypeName   string `json:"evmTokenTypeName"`
+					EvmContract        struct {
+						CreatedAt                    string      `json:"createdAt"`
+						UpdatedAt                    string      `json:"updatedAt"`
+						Address                      string      `json:"address"`
+						Status                       string      `json:"status"`
+						Abi                          interface{} `json:"abi"`
+						ByteCode                     string      `json:"byteCode"`
+						DeploymentEvmAccountAddress  string      `json:"deploymentEvmAccountAddress"`
+						DeploymentEvmBlockHeight     uint64      `json:"deploymentEvmBlockHeight"`
+						DeploymentEvmTransactionHash string      `json:"deploymentEvmTransactionHash"`
+						DeploymentEvmReceiptId       uint64      `json:"deploymentEvmReceiptId"`
+					} `json:"evmContract"`
+				} `json:"evmToken"`
+			} `json:"evmAccountERC1155TokenBalance"`
+		} `json:"evmTokenAccountBalance"`
+	} `json:"result"`
+}
+
+// /evm-accounts/{address}/balances
+// Get evm contract events
+func (api *API) GetEvmAccountBalances(address string, opt *OptionalParams) ([]EvmAccountBalance, error) {
+
+	var r = strings.NewReplacer(
+		"{address}", fmt.Sprintf("%s", address),
+	)
+	var link = r.Replace("/evm-accounts/{address}/balances")
+	if opt != nil {
+		link += opt.String()
+	}
+
+	// request
+	res, err := api.client.R().Get(link)
+	if err = processConnectionError(res, err); err != nil {
+		return nil, err
+	}
+	// json decode
+	respValue, respErr := resultGetEvmAccountBalances{}, Error{}
+	err = universalJSONDecode(res.Body(), &respValue, &respErr, func() (bool, bool) {
+		return respValue.Ok, respErr.StatusCode != 0
+	})
+	if err != nil {
+		return nil, joinErrors(err, respErr)
+	}
+	// process result
+	return converterGetEvmAccountBalances(respValue)
 }
 
 ///////////////
@@ -590,39 +1090,33 @@ func (api *API) GetValidatorsByKind(kind string) ([]Validator, error) {
 
 ///////////////
 
-type resultGetAddressTxs struct {
+type resultGetValidatorsCoins struct {
 	Ok     bool `json:"ok"`
-	Result struct {
-		Count int64 `json:"count"`
-		Txs   []struct {
-			CreatedAt string `json:"createdAt"`
-			UpdatedAt string `json:"updatedAt"`
-			Hash      string `json:"hash"`
-			Timestamp string `json:"timestamp"`
-			Status    uint64 `json:"status"`
-			Type      string `json:"type"`
-			Fee       struct {
-				Coin   string `json:"coin"`
-				Amount string `json:"amount"`
-			} `json:"fee"`
-			Data    interface{} `json:"data"`
-			Nonce   int64       `json:"nonce"`
-			BlockId int64       `json:"blockId"`
-			Message string      `json:"message"`
-			From    string      `json:"from"`
-			To      string      `json:"to"`
-		} `json:"txs"`
+	Result []struct {
+		Count  uint64 `json:"count"`
+		Stakes struct {
+			Address string `json:"address"`
+			Coins   []struct {
+				CoinSymbol string `json:"coinSymbol"`
+				Amount     string `json:"amount"`
+				BaseAmount string `json:"baseAmount"`
+				Avatar     string `json:"avatar"`
+			} `json:"coins"`
+		} `json:"stakes"`
 	} `json:"result"`
 }
 
-// /address/{id}/txs
-// Get address's transactions
-func (api *API) GetAddressTxs(id string) ([]TxInfo, error) {
+// /validators/{address}/coins
+// Get coins grouped by delegator account address
+func (api *API) GetValidatorsCoins(address string, opt *OptionalParams) ([]ValidatorStakedCoin, error) {
 
 	var r = strings.NewReplacer(
-		"{id}", fmt.Sprintf("%s", id),
+		"{address}", fmt.Sprintf("%s", address),
 	)
-	var link = r.Replace("/address/{id}/txs")
+	var link = r.Replace("/validators/{address}/coins")
+	if opt != nil {
+		link += opt.String()
+	}
 
 	// request
 	res, err := api.client.R().Get(link)
@@ -630,7 +1124,7 @@ func (api *API) GetAddressTxs(id string) ([]TxInfo, error) {
 		return nil, err
 	}
 	// json decode
-	respValue, respErr := resultGetAddressTxs{}, Error{}
+	respValue, respErr := resultGetValidatorsCoins{}, Error{}
 	err = universalJSONDecode(res.Body(), &respValue, &respErr, func() (bool, bool) {
 		return respValue.Ok, respErr.StatusCode != 0
 	})
@@ -638,7 +1132,43 @@ func (api *API) GetAddressTxs(id string) ([]TxInfo, error) {
 		return nil, joinErrors(err, respErr)
 	}
 	// process result
-	return converterGetAddressTxs(respValue)
+	return converterGetValidatorsCoins(respValue)
+}
+
+///////////////
+
+type resultGetValidator struct {
+	Ok     bool `json:"ok"`
+	Result struct {
+		Address string `json:"address"`
+		BlockId int64  `json:"blockId"`
+	} `json:"result"`
+}
+
+// /validator/{address}
+// Get validator by address (public key)
+func (api *API) GetValidator(address string) (*Validator, error) {
+
+	var r = strings.NewReplacer(
+		"{address}", fmt.Sprintf("%s", address),
+	)
+	var link = r.Replace("/validator/{address}")
+
+	// request
+	res, err := api.client.R().Get(link)
+	if err = processConnectionError(res, err); err != nil {
+		return nil, err
+	}
+	// json decode
+	respValue, respErr := resultGetValidator{}, Error{}
+	err = universalJSONDecode(res.Body(), &respValue, &respErr, func() (bool, bool) {
+		return respValue.Ok, respErr.StatusCode != 0
+	})
+	if err != nil {
+		return nil, joinErrors(err, respErr)
+	}
+	// process result
+	return converterGetValidator(respValue)
 }
 
 ///////////////
@@ -660,12 +1190,15 @@ type resultGetValidatorStakes struct {
 
 // /validator/{address}/stakes
 // Get validator's stake
-func (api *API) GetValidatorStakes(address string) ([]ValidatorStake, error) {
+func (api *API) GetValidatorStakes(address string, opt *OptionalParams) ([]ValidatorStake, error) {
 
 	var r = strings.NewReplacer(
 		"{address}", fmt.Sprintf("%s", address),
 	)
 	var link = r.Replace("/validator/{address}/stakes")
+	if opt != nil {
+		link += opt.String()
+	}
 
 	// request
 	res, err := api.client.R().Get(link)
@@ -682,4 +1215,47 @@ func (api *API) GetValidatorStakes(address string) ([]ValidatorStake, error) {
 	}
 	// process result
 	return converterGetValidatorStakes(respValue)
+}
+
+///////////////
+
+type resultGetValidatorStakesNFT struct {
+	Ok     bool `json:"ok"`
+	Result struct {
+		Count  int64 `json:"count"`
+		Stakes []struct {
+			CreatedAt   string `json:"createdAt"`
+			UpdatedAt   string `json:"updatedAt"`
+			CoinSymbol  string `json:"coinSymbol"`
+			Amount      string `json:"amount"`
+			AddressId   string `json:"addressId"`
+			ValidatorId string `json:"validatorId"`
+		} `json:"stakes"`
+	} `json:"result"`
+}
+
+// /validator/{address}/stakes/nfts
+// Get validator's NFTs stake
+func (api *API) GetValidatorStakesNFT(address string) ([]ValidatorStakeNFT, error) {
+
+	var r = strings.NewReplacer(
+		"{address}", fmt.Sprintf("%s", address),
+	)
+	var link = r.Replace("/validator/{address}/stakes/nfts")
+
+	// request
+	res, err := api.client.R().Get(link)
+	if err = processConnectionError(res, err); err != nil {
+		return nil, err
+	}
+	// json decode
+	respValue, respErr := resultGetValidatorStakesNFT{}, Error{}
+	err = universalJSONDecode(res.Body(), &respValue, &respErr, func() (bool, bool) {
+		return respValue.Ok, respErr.StatusCode != 0
+	})
+	if err != nil {
+		return nil, joinErrors(err, respErr)
+	}
+	// process result
+	return converterGetValidatorStakesNFT(respValue)
 }

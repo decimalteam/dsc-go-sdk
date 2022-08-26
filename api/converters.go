@@ -176,3 +176,159 @@ func converterGetValidatorStakes(resp resultGetValidatorStakes) ([]ValidatorStak
 	}
 	return res, nil
 }
+
+func converterGetValidatorStakesNFT(resp resultGetValidatorStakesNFT) ([]ValidatorStakeNFT, error) {
+	var ok bool
+	var res = make([]ValidatorStakeNFT, len(resp.Result.Stakes))
+	for i, stake := range resp.Result.Stakes {
+		res[i].ValidatorId = stake.ValidatorId
+		res[i].AddressId = stake.AddressId
+		res[i].Amount, ok = math.NewIntFromString(stake.Amount)
+		if !ok {
+			return nil, fmt.Errorf("cannot convert amount '%s' to math.Int", stake.Amount)
+		}
+		res[i].CoinSymbol = stake.CoinSymbol
+	}
+	return res, nil
+}
+
+func converterGetEvmAccount(resp resultGetEvmAccount) (*EvmAccount, error) {
+	return &EvmAccount{
+		Address: resp.Result.Address,
+	}, nil
+}
+
+func converterGetEvmContract(resp resultGetEvmContract) (*EvmContract, error) {
+	return &EvmContract{
+		Address:                      resp.Result.Address,
+		Status:                       resp.Result.Status,
+		DeploymentEvmAccountAddress:  resp.Result.DeploymentEvmAccountAddress,
+		DeploymentEvmTransactionHash: resp.Result.DeploymentEvmTransactionHash,
+	}, nil
+}
+
+func converterGetEvmTransaction(resp resultGetEvmTransaction) (*EvmTransaction, error) {
+	return &EvmTransaction{
+		Hash:           resp.Result.Hash,
+		Gas:            resp.Result.Gas,
+		Type:           resp.Result.Type,
+		Input:          resp.Result.Input,
+		Nonce:          resp.Result.Nonce,
+		Value:          resp.Result.Value,
+		ChainId:        resp.Result.ChainId,
+		GasPrice:       resp.Result.GasPrice,
+		MaxFeePerGas:   resp.Result.MaxFeePerGas,
+		From:           resp.Result.From,
+		To:             resp.Result.To,
+		EvmBlockHeight: resp.Result.EvmBlockHeight,
+	}, nil
+}
+
+func converterGetBlockTransactions(resp resultGetBlockTransactions) ([]TxInfo, error) {
+	var res = make([]TxInfo, len(resp.Result.Txs))
+	for i, tx := range resp.Result.Txs {
+		res[i].Block = tx.BlockId
+		res[i].From = tx.From
+		res[i].Hash = tx.Hash
+		res[i].Status = tx.Status
+		res[i].To = tx.To
+		res[i].Type = tx.Type
+	}
+	return res, nil
+}
+
+func converterGetEvmContractTransactions(resp resultGetEvmContractTransactions) ([]EvmTransaction, error) {
+	var res = make([]EvmTransaction, len(resp.Result.EvmContractTransactions))
+	for i, tx := range resp.Result.EvmContractTransactions {
+		res[i].Hash = tx.Hash
+		res[i].Gas = tx.Gas
+		res[i].Type = tx.Type
+		res[i].Input = tx.Input
+		res[i].Nonce = tx.Nonce
+		res[i].Value = tx.Value
+		res[i].ChainId = tx.ChainId
+		res[i].GasPrice = tx.GasPrice
+		res[i].MaxFeePerGas = tx.MaxFeePerGas
+		res[i].From = tx.From
+		res[i].To = tx.To
+		res[i].EvmBlockHeight = tx.EvmBlockHeight
+	}
+	return res, nil
+}
+
+func converterGetValidatorsCoins(resp resultGetValidatorsCoins) ([]ValidatorStakedCoin, error) {
+	var res = make([]ValidatorStakedCoin, 0)
+	for _, result := range resp.Result {
+		for _, coin := range result.Stakes.Coins {
+			amount, ok := math.NewIntFromString(coin.Amount)
+			if !ok {
+				return nil, fmt.Errorf("cannot convert amount '%s' to math.Int", coin.Amount)
+			}
+			baseAmount, ok := math.NewIntFromString(coin.BaseAmount)
+			if !ok {
+				return nil, fmt.Errorf("cannot convert base amount '%s' to math.Int", coin.BaseAmount)
+			}
+			res = append(res, ValidatorStakedCoin{
+				Address:    result.Stakes.Address,
+				CoinSymbol: coin.CoinSymbol,
+				Amount:     amount,
+				BaseAmount: baseAmount,
+			})
+		}
+	}
+	return res, nil
+}
+
+func converterGetEvmAccountBalances(resp resultGetEvmAccountBalances) ([]EvmAccountBalance, error) {
+	var res = make([]EvmAccountBalance, 0)
+	for _, balance := range resp.Result.EvmTokenAccountBalance {
+		for _, erc20 := range balance.EvmAccountERC20TokenBalances {
+			amount, ok := math.NewIntFromString(erc20.Amount)
+			if !ok {
+				fmt.Errorf("cannot convert amount '%s' to math.Int", erc20.Amount)
+			}
+			res = append(res, EvmAccountBalance{
+				TokenType:    "ERC20",
+				TokenAddress: erc20.EvmTokenAddress,
+				Symbol:       erc20.EvmToken.Symbol,
+				Amount:       amount,
+			})
+		}
+		for _, erc721 := range balance.EvmAccountERC721TokenBalance {
+			amount, ok := math.NewIntFromString(erc721.Amount)
+			if !ok {
+				fmt.Errorf("cannot convert amount '%s' to math.Int", erc721.Amount)
+			}
+			res = append(res, EvmAccountBalance{
+				TokenType:    "ERC721",
+				TokenAddress: erc721.EvmTokenAddress,
+				Symbol:       erc721.EvmToken.Symbol,
+				Amount:       amount,
+			})
+		}
+		for _, erc1155 := range balance.EvmAccountERC1155TokenBalance {
+			amount, ok := math.NewIntFromString(erc1155.Amount)
+			if !ok {
+				fmt.Errorf("cannot convert amount '%s' to math.Int", erc1155.Amount)
+			}
+			res = append(res, EvmAccountBalance{
+				TokenType:    "ERC1155",
+				TokenAddress: erc1155.EvmTokenAddress,
+				Symbol:       erc1155.EvmToken.Symbol,
+				Amount:       amount,
+			})
+		}
+	}
+	return res, nil
+}
+
+func converterGetEvmContractEvents(resp resultGetEvmContractEvents) ([]EvmEvent, error) {
+	var res = make([]EvmEvent, len(resp.Result.EvmContractEvents))
+	for i, event := range resp.Result.EvmContractEvents {
+		res[i].EvmBlockHeight = event.EvmBlockHeight
+		res[i].EvmTransactionHash = event.EvmTransactionHash
+		res[i].GasUsed = event.GasUsed
+		res[i].Type = event.Type
+	}
+	return res, nil
+}

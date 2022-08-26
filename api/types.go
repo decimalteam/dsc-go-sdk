@@ -1,8 +1,19 @@
 package api
 
 import (
+	"fmt"
+
 	"cosmossdk.io/math"
 )
+
+type OptionalParams struct {
+	Limit  int
+	Offset int
+}
+
+func (opt *OptionalParams) String() string {
+	return fmt.Sprintf("?limit=%d&offset=%d", opt.Limit, opt.Offset)
+}
 
 type CoinInfo struct {
 	Symbol      string
@@ -83,4 +94,32 @@ type ValidatorStake struct {
 	Amount      math.Int
 	AddressId   string
 	ValidatorId string
+}
+
+type ValidatorStakeNFT struct {
+	CoinSymbol  string
+	Amount      math.Int
+	AddressId   string
+	ValidatorId string
+}
+
+type ValidatorStakedCoin struct {
+	Address    string
+	CoinSymbol string
+	Amount     math.Int
+	BaseAmount math.Int
+}
+
+type EvmAccountBalance struct {
+	TokenType    string
+	TokenAddress string
+	Symbol       string
+	Amount       math.Int
+}
+
+type EvmEvent struct {
+	Type               uint64
+	GasUsed            uint64
+	EvmTransactionHash string
+	EvmBlockHeight     uint64
 }
