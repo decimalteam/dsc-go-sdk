@@ -7,6 +7,8 @@ ENDPOINTS_METHODS = {
     ### address
     "/address/{id}": ("GetAddress", "resultGetAddress", "*AddressInfo"),
     "/address/{id}/txs": ("GetAddressTxs", "resultGetAddressTxs", "[]TxInfo"),
+    "/address/{address}/stakes": ("GetAddressStakes", "resultGetAddressStakes", "[]ValidatorStake"),
+    "/address/{address}/rewards": ("GetAddressRewards", "resultGetAddressRewards", "[]Reward"),
     ### nft
     "/nfts": ("GetAllNFT", "resultGetAllNFT", "[]NFT"),
     "/nft/{collection}": ("GetNFTCollection", "resultGetNFTCollection", "interface{}"),
@@ -17,6 +19,7 @@ ENDPOINTS_METHODS = {
     "/coins": ("GetCoins", "resultGetCoins", "[]CoinInfo"),
     "/coin/{coin}": ("GetCoin", "resultGetCoin", "*CoinInfo"),
     ### blocks
+    "/blocks": ("GetBlocks", "resultGetBlocks", "[]BlockInfo"),
     "/block/{height}": ("GetBlockByHeight", "resultGetBlock", "*BlockInfo"),
     #"/block/{height}/validators": ("GetBlockValidators", "resultGetBlockValidators", "[]BlockValidator"),
     "/block/{height}/txs": ("GetBlockTransactions", "resultGetBlockTransactions", "[]TxInfo"),

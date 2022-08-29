@@ -27,9 +27,17 @@ func main() {
 		return
 	}
 
-	printBlockchainInfo(api)
+	we, err := dscApi.CreateTxSubscription("wss://devnet-dec2-explorer-api.decimalchain.com/api")
+	if err != nil {
+		fmt.Printf("CreateTxSubscription() error: %v\n", err)
+		return
+	}
+	go we.ReadCycle()
+
+	//printBlockchainInfo(api)
 
 	sampleSendCoins(api)
+	time.Sleep(time.Second * 10)
 }
 
 //helper function

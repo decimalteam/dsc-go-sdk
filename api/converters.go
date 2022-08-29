@@ -285,7 +285,7 @@ func converterGetEvmAccountBalances(resp resultGetEvmAccountBalances) ([]EvmAcco
 		for _, erc20 := range balance.EvmAccountERC20TokenBalances {
 			amount, ok := math.NewIntFromString(erc20.Amount)
 			if !ok {
-				fmt.Errorf("cannot convert amount '%s' to math.Int", erc20.Amount)
+				return nil, fmt.Errorf("cannot convert amount '%s' to math.Int", erc20.Amount)
 			}
 			res = append(res, EvmAccountBalance{
 				TokenType:    "ERC20",
@@ -297,7 +297,7 @@ func converterGetEvmAccountBalances(resp resultGetEvmAccountBalances) ([]EvmAcco
 		for _, erc721 := range balance.EvmAccountERC721TokenBalance {
 			amount, ok := math.NewIntFromString(erc721.Amount)
 			if !ok {
-				fmt.Errorf("cannot convert amount '%s' to math.Int", erc721.Amount)
+				return nil, fmt.Errorf("cannot convert amount '%s' to math.Int", erc721.Amount)
 			}
 			res = append(res, EvmAccountBalance{
 				TokenType:    "ERC721",
@@ -309,7 +309,7 @@ func converterGetEvmAccountBalances(resp resultGetEvmAccountBalances) ([]EvmAcco
 		for _, erc1155 := range balance.EvmAccountERC1155TokenBalance {
 			amount, ok := math.NewIntFromString(erc1155.Amount)
 			if !ok {
-				fmt.Errorf("cannot convert amount '%s' to math.Int", erc1155.Amount)
+				return nil, fmt.Errorf("cannot convert amount '%s' to math.Int", erc1155.Amount)
 			}
 			res = append(res, EvmAccountBalance{
 				TokenType:    "ERC1155",
@@ -329,6 +329,47 @@ func converterGetEvmContractEvents(resp resultGetEvmContractEvents) ([]EvmEvent,
 		res[i].EvmTransactionHash = event.EvmTransactionHash
 		res[i].GasUsed = event.GasUsed
 		res[i].Type = event.Type
+	}
+	return res, nil
+}
+
+func converterGetAddressStakes(resp resultGetAddressStakes) ([]ValidatorStake, error) {
+	var res = make([]ValidatorStake, len(resp.Result.Stakes))
+	for i, stake := range resp.Result.Stakes {
+		res[i].AddressId = stake.AddressId
+		amount, ok := math.NewIntFromString(stake.Amount)
+		if !ok {
+			return nil, fmt.Errorf("cannot convert amount '%s' to math.Int", stake.Amount)
+		}
+		res[i].Amount = amount
+		res[i].CoinSymbol = stake.CoinSymbol
+		res[i].ValidatorId = stake.ValidatorId
+	}
+	return res, nil
+}
+
+func converterGetBlocks(resp resultGetBlocks) ([]BlockInfo, error) {
+	var res = make([]BlockInfo, len(resp.Result.Blocks))
+	for i, block := range resp.Result.Blocks {
+		res[i].Height = block.Height
+		res[i].Reward = block.Reward
+		res[i].ValidatorsCount = block.ValidatorsCount
+		res[i].TxsCount = block.TxsCount
+	}
+	return res, nil
+}
+
+func converterGetAddressRewards(resp resultGetAddressRewards) ([]Reward, error) {
+	var res = make([]Reward, len(resp.Result.Rewards))
+	for i, reward := range resp.Result.Rewards {
+		res[i].AddressId = reward.AddressId
+		res[i].ValidatorId = reward.ValidatorId
+		res[i].CoinSymbol = reward.CoinSymbol
+		amount, ok := math.NewIntFromString(reward.Amount)
+		if !ok {
+			return nil, fmt.Errorf("cannot convert amount '%s' to math.Int", reward.Amount)
+		}
+		res[i].Amount = amount
 	}
 	return res, nil
 }

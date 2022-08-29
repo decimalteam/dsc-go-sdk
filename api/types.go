@@ -123,3 +123,10 @@ type EvmEvent struct {
 	EvmTransactionHash string
 	EvmBlockHeight     uint64
 }
+
+type Reward struct {
+	CoinSymbol  string
+	Amount      math.Int
+	AddressId   string
+	ValidatorId string
+}

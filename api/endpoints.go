@@ -119,6 +119,98 @@ func (api *API) GetAddressTxs(id string, opt *OptionalParams) ([]TxInfo, error) 
 
 ///////////////
 
+type resultGetAddressStakes struct {
+	Ok     bool `json:"ok"`
+	Result struct {
+		Count  int64 `json:"count"`
+		Stakes []struct {
+			CreatedAt   string `json:"createdAt"`
+			UpdatedAt   string `json:"updatedAt"`
+			CoinSymbol  string `json:"coinSymbol"`
+			Amount      string `json:"amount"`
+			AddressId   string `json:"addressId"`
+			ValidatorId string `json:"validatorId"`
+		} `json:"stakes"`
+	} `json:"result"`
+}
+
+// /address/{address}/stakes
+// Get address's stakes
+func (api *API) GetAddressStakes(address string, opt *OptionalParams) ([]ValidatorStake, error) {
+
+	var r = strings.NewReplacer(
+		"{address}", fmt.Sprintf("%s", address),
+	)
+	var link = r.Replace("/address/{address}/stakes")
+	if opt != nil {
+		link += opt.String()
+	}
+
+	// request
+	res, err := api.client.R().Get(link)
+	if err = processConnectionError(res, err); err != nil {
+		return nil, err
+	}
+	// json decode
+	respValue, respErr := resultGetAddressStakes{}, Error{}
+	err = universalJSONDecode(res.Body(), &respValue, &respErr, func() (bool, bool) {
+		return respValue.Ok, respErr.StatusCode != 0
+	})
+	if err != nil {
+		return nil, joinErrors(err, respErr)
+	}
+	// process result
+	return converterGetAddressStakes(respValue)
+}
+
+///////////////
+
+type resultGetAddressRewards struct {
+	Ok     bool `json:"ok"`
+	Result struct {
+		Count   int64 `json:"count"`
+		Rewards []struct {
+			CreatedAt   string `json:"createdAt"`
+			UpdatedAt   string `json:"updatedAt"`
+			CoinSymbol  string `json:"coinSymbol"`
+			Amount      string `json:"amount"`
+			AddressId   string `json:"addressId"`
+			ValidatorId string `json:"validatorId"`
+		} `json:"rewards"`
+	} `json:"result"`
+}
+
+// /address/{address}/rewards
+// Get address's rewards
+func (api *API) GetAddressRewards(address string, opt *OptionalParams) ([]Reward, error) {
+
+	var r = strings.NewReplacer(
+		"{address}", fmt.Sprintf("%s", address),
+	)
+	var link = r.Replace("/address/{address}/rewards")
+	if opt != nil {
+		link += opt.String()
+	}
+
+	// request
+	res, err := api.client.R().Get(link)
+	if err = processConnectionError(res, err); err != nil {
+		return nil, err
+	}
+	// json decode
+	respValue, respErr := resultGetAddressRewards{}, Error{}
+	err = universalJSONDecode(res.Body(), &respValue, &respErr, func() (bool, bool) {
+		return respValue.Ok, respErr.StatusCode != 0
+	})
+	if err != nil {
+		return nil, joinErrors(err, respErr)
+	}
+	// process result
+	return converterGetAddressRewards(respValue)
+}
+
+///////////////
+
 type resultGetAllNFT struct {
 	Ok     bool `json:"ok"`
 	Result struct {
@@ -378,6 +470,54 @@ func (api *API) GetCoin(coin string) (*CoinInfo, error) {
 	}
 	// process result
 	return converterGetCoin(respValue)
+}
+
+///////////////
+
+type resultGetBlocks struct {
+	Ok     bool `json:"ok"`
+	Result struct {
+		Count  uint64 `json:"count"`
+		Blocks []struct {
+			CreatedAt       string `json:"createdAt"`
+			UpdatedAt       string `json:"updatedAt"`
+			Height          int64  `json:"height"`
+			Date            string `json:"date"`
+			Hash            string `json:"hash"`
+			Size            int64  `json:"size"`
+			Reward          int64  `json:"reward"`
+			BlockTime       int64  `json:"blockTime"`
+			TxsCount        int64  `json:"txsCount"`
+			ValidatorsCount int64  `json:"validatorsCount"`
+			ProposerId      string `json:"proposerId"`
+		} `json:"blocks"`
+	} `json:"result"`
+}
+
+// /blocks
+// Get all blocks
+func (api *API) GetBlocks(opt *OptionalParams) ([]BlockInfo, error) {
+
+	var link = "/blocks"
+	if opt != nil {
+		link += opt.String()
+	}
+
+	// request
+	res, err := api.client.R().Get(link)
+	if err = processConnectionError(res, err); err != nil {
+		return nil, err
+	}
+	// json decode
+	respValue, respErr := resultGetBlocks{}, Error{}
+	err = universalJSONDecode(res.Body(), &respValue, &respErr, func() (bool, bool) {
+		return respValue.Ok, respErr.StatusCode != 0
+	})
+	if err != nil {
+		return nil, joinErrors(err, respErr)
+	}
+	// process result
+	return converterGetBlocks(respValue)
 }
 
 ///////////////
