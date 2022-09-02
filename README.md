@@ -173,6 +173,7 @@ List of known methods:
 - GetAddressRewards(address string, opt *OptionalParams) ([]Reward, error)
 - GetAllNFT(opt *OptionalParams) ([]NFT, error)
 - GetNFTCollection(collection string) (interface{}, error)
+- GetNFTTransactions(collection string, id string, opt *OptionalParams) ([]TxInfo, error)
 - GetTxByHash(hash string) (*TxInfo, error)
 - GetTxs(opt *OptionalParams) ([]TxInfo, error)
 - GetCoins(opt *OptionalParams) ([]CoinInfo, error)

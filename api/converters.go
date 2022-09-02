@@ -373,3 +373,16 @@ func converterGetAddressRewards(resp resultGetAddressRewards) ([]Reward, error) 
 	}
 	return res, nil
 }
+
+func converterGetNFTTransactions(resp resultGetNFTTransactions) ([]TxInfo, error) {
+	var res = make([]TxInfo, len(resp.Result.Txs))
+	for i, tx := range resp.Result.Txs {
+		res[i].Hash = tx.Hash
+		res[i].Block = tx.BlockId
+		res[i].From = tx.From
+		res[i].Status = tx.Status
+		res[i].To = tx.To
+		res[i].Type = tx.Type
+	}
+	return res, nil
+}

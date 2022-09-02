@@ -1,7 +1,7 @@
 4d63.com/gochecknoglobals v0.1.0/go.mod h1:wfdC5ZjKSPr7CybKEcgJhUOgeAQW1+7WcyK8OvUilfo=
 bitbucket.org/creachadair/shell v0.0.6/go.mod h1:8Qqi/cYk7vPnsOePHroKXDJYmb5x7ENhtiFtfZq8K+M=
-bitbucket.org/decimalteam/go-smart-node v0.0.8-0.20220823055108-82eaf8a96b7f h1:Bzd2i+8ukiFMjR9IPkwdA0z3iiIM9yvP3zWnMul9pNM=
-bitbucket.org/decimalteam/go-smart-node v0.0.8-0.20220823055108-82eaf8a96b7f/go.mod h1:9bKie8yvlFLdZylOeZwfdMYirfJrl6XvEj9qh1f27vI=
+bitbucket.org/decimalteam/go-smart-node v0.0.8-0.20220901034456-630d7927df0f h1:cTZgYlZFGkW4p+gsG4VmTg8Iu0ZaFW9g9IWB8iMVIMA=
+bitbucket.org/decimalteam/go-smart-node v0.0.8-0.20220901034456-630d7927df0f/go.mod h1:p5SH5OaJGeVeJwwbB+r45Y3fzoZQlirMwexL38SppUc=
 cloud.google.com/go v0.26.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMTw=
 cloud.google.com/go v0.34.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMTw=
 cloud.google.com/go v0.38.0/go.mod h1:990N+gfupTy94rShfmMCWGDn0LpTmnzTp2qbd1dvSRU=
@@ -1760,8 +1760,8 @@ google.golang.org/genproto v0.0.0-20220421151946-72621c1f0bd3/go.mod h1:8w6bsBMX
 google.golang.org/genproto v0.0.0-20220429170224-98d788798c3e/go.mod h1:8w6bsBMX6yCPbAVTeqQHvzxW0EIFigd5lZyahWgyfDo=
 google.golang.org/genproto v0.0.0-20220505152158-f39f71e6c8f3/go.mod h1:RAyBrSAP7Fh3Nc84ghnVLDPuV51xc9agzmm4Ph6i0Q4=
 google.golang.org/genproto v0.0.0-20220519153652-3a47de7e79bd/go.mod h1:RAyBrSAP7Fh3Nc84ghnVLDPuV51xc9agzmm4Ph6i0Q4=
-google.golang.org/genproto v0.0.0-20220812140447-cec7f5303424 h1:zZnTt15U44/Txe/9cN/tVbteBkPMiyXK48hPsKRmqj4=
-google.golang.org/genproto v0.0.0-20220812140447-cec7f5303424/go.mod h1:dbqgFATTzChvnt+ujMdZwITVAJHFtfyN1qUhDqEiIlk=
+google.golang.org/genproto v0.0.0-20220815135757-37a418bb8959 h1:hw4Y42zL1VyVKxPgRHHh191fpVBGV8sNVmcow5Z8VXY=
+google.golang.org/genproto v0.0.0-20220815135757-37a418bb8959/go.mod h1:dbqgFATTzChvnt+ujMdZwITVAJHFtfyN1qUhDqEiIlk=
 google.golang.org/grpc v1.8.0/go.mod h1:yo6s7OP7yaDglbqo1J04qKzAhqBH6lvTonzMVmEdcZw=
 google.golang.org/grpc v1.19.0/go.mod h1:mqu4LbDTu4XGKhr4mRzUsmM4RtVoemTSY81AxZiDr8c=
 google.golang.org/grpc v1.20.1/go.mod h1:10oTOabMzJvdu6/UiuZezV6QK5dSlG84ov/aaiqXj38=

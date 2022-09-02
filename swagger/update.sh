@@ -4,4 +4,5 @@ curl -o documentation.json https://devnet-dec2-explorer-api.decimalchain.com/api
 ./gpretty.py
 ./swagger2code.py
 gofmt -w endpoints.go
+gofmt -w verify_endpoints.go
 mv endpoints.go ../api

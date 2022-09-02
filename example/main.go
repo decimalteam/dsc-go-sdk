@@ -8,6 +8,7 @@ import (
 	"time"
 
 	dscApi "bitbucket.org/decimalteam/dsc-go-sdk/api"
+	dscSwagger "bitbucket.org/decimalteam/dsc-go-sdk/swagger"
 	dscTx "bitbucket.org/decimalteam/dsc-go-sdk/tx"
 	dscWallet "bitbucket.org/decimalteam/dsc-go-sdk/wallet"
 	"cosmossdk.io/math"
@@ -15,29 +16,145 @@ import (
 )
 
 func main() {
+	verifyEndpoints()
+	/*
+		api := dscApi.NewAPI(
+			"https://devnet-dec2-explorer-api.decimalchain.com/api/",
+			"https://devnet-dec2-node-01.decimalchain.com/rpc/",
+			"https://devnet-dec2-node-01.decimalchain.com/rest/",
+		)
+
+		err := api.GetParameters()
+		if err != nil {
+			fmt.Printf("GetParameters() error: %v\n", err)
+			return
+		}
+
+		we, err := dscApi.CreateTxSubscription("wss://devnet-dec2-explorer-api.decimalchain.com/api")
+		if err != nil {
+			fmt.Printf("CreateTxSubscription() error: %v\n", err)
+			return
+		}
+		go we.ReadCycle()
+
+		//printBlockchainInfo(api)
+
+		sampleSendCoins(api)
+		time.Sleep(time.Second * 10)
+	*/
+}
+
+func verifyEndpoints() {
+	const address = "dx19gnel4ksl838js00d0jquq7k9avgxmd6gn9uxu"
+
+	var res []string
+	var err error
+	apiVerificator := dscSwagger.NewAPI("https://devnet-dec2-explorer-api.decimalchain.com/api/")
 	api := dscApi.NewAPI(
 		"https://devnet-dec2-explorer-api.decimalchain.com/api/",
 		"https://devnet-dec2-node-01.decimalchain.com/rpc/",
 		"https://devnet-dec2-node-01.decimalchain.com/rest/",
 	)
 
-	err := api.GetParameters()
-	if err != nil {
-		fmt.Printf("GetParameters() error: %v\n", err)
-		return
+	res, err = apiVerificator.VerificationGetAddress(address)
+	fmt.Printf("VerificationGetAddress: err = %v, result = %s\n", err, formatAsJSON(res))
+
+	res, err = apiVerificator.VerificationGetAddressTxs(address, nil)
+	fmt.Printf("VerificationGetAddressTxs: err = %v, result = %s\n", err, formatAsJSON(res))
+
+	res, err = apiVerificator.VerificationGetAddressStakes(address, nil)
+	fmt.Printf("VerificationGetAddressStakes: err = %v, result = %s\n", err, formatAsJSON(res))
+
+	res, err = apiVerificator.VerificationGetAddressRewards(address, nil)
+	fmt.Printf("VerificationGetAddressRewards: err = %v, result = %s\n", err, formatAsJSON(res))
+
+	res, err = apiVerificator.VerificationGetAllNFT(nil)
+	fmt.Printf("VerificationGetAllNFT: err = %v, result = %s\n", err, formatAsJSON(res))
+
+	nfts, err := api.GetAllNFT(&dscApi.OptionalParams{Limit: 1})
+	if err == nil && len(nfts) > 0 {
+		res, err = apiVerificator.VerificationGetNFTCollection(nfts[0].NftCollection)
+		fmt.Printf("VerificationGetNFTCollection: err = %v, result = %s\n", err, formatAsJSON(res))
+
+		res, err := apiVerificator.VerificationGetNFTTransactions(nfts[0].NftCollection, nfts[0].NftId, &dscSwagger.OptionalParams{Limit: 1})
+		fmt.Printf("VerificationGetNFTTransactions: err = %v, result = %s\n", err, formatAsJSON(res))
 	}
 
-	we, err := dscApi.CreateTxSubscription("wss://devnet-dec2-explorer-api.decimalchain.com/api")
-	if err != nil {
-		fmt.Printf("CreateTxSubscription() error: %v\n", err)
-		return
+	// TODO: test after unmarshaling fix
+	//res, err = api.VerificationGetTxByHash("")
+	//fmt.Printf("VerificationGetTxByHash: err = %v, result = %s\n", err, formatAsJSON(res))
+
+	res, err = apiVerificator.VerificationGetTxs(&dscSwagger.OptionalParams{Limit: 1})
+	fmt.Printf("VerificationGetTxs: err = %v, result = %s\n", err, formatAsJSON(res))
+
+	res, err = apiVerificator.VerificationGetCoins(&dscSwagger.OptionalParams{Limit: 1})
+	fmt.Printf("VerificationGetCoins: err = %v, result = %s\n", err, formatAsJSON(res))
+
+	res, err = apiVerificator.VerificationGetCoin("del")
+	fmt.Printf("VerificationGetCoin: err = %v, result = %s\n", err, formatAsJSON(res))
+
+	res, err = apiVerificator.VerificationGetBlocks(&dscSwagger.OptionalParams{Limit: 1})
+	fmt.Printf("VerificationGetBlocks: err = %v, result = %s\n", err, formatAsJSON(res))
+
+	res, err = apiVerificator.VerificationGetBlockByHeight(1)
+	fmt.Printf("VerificationGetBlockByHeight: err = %v, result = %s\n", err, formatAsJSON(res))
+
+	res, err = apiVerificator.VerificationGetBlockTransactions(1)
+	fmt.Printf("VerificationGetBlockTransactions: err = %v, result = %s\n", err, formatAsJSON(res))
+
+	res, err = apiVerificator.VerificationGetEvmContracts(&dscSwagger.OptionalParams{Limit: 1})
+	fmt.Printf("VerificationGetEvmContracts: err = %v, result = %s\n", err, formatAsJSON(res))
+
+	contracts, err := api.GetEvmContracts(&dscApi.OptionalParams{Limit: 1})
+	if err == nil && len(contracts) > 0 {
+		res, err = apiVerificator.VerificationGetEvmContract(contracts[0].Address)
+		fmt.Printf(": err = %v, result = %s\n", err, formatAsJSON(res))
+
+		res, err = apiVerificator.VerificationGetEvmContractTransactions(contracts[0].Address, &dscSwagger.OptionalParams{Limit: 1})
+		fmt.Printf("VerificationGetEvmContractTransactions: err = %v, result = %s\n", err, formatAsJSON(res))
 	}
-	go we.ReadCycle()
 
-	//printBlockchainInfo(api)
+	res, err = apiVerificator.VerificationGetEvmTransactions(&dscSwagger.OptionalParams{Limit: 1})
+	fmt.Printf("VerificationGetEvmTransactions: err = %v, result = %s\n", err, formatAsJSON(res))
 
-	sampleSendCoins(api)
-	time.Sleep(time.Second * 10)
+	txs, err := api.GetEvmTransactions(&dscApi.OptionalParams{Limit: 1})
+	if err == nil && len(txs) > 0 {
+		res, err = apiVerificator.VerificationGetEvmTransaction(txs[0].Hash)
+		fmt.Printf("VerificationGetEvmTransaction: err = %v, result = %s\n", err, formatAsJSON(res))
+	}
+
+	res, err = apiVerificator.VerificationGetEvmAccounts(&dscSwagger.OptionalParams{Limit: 1})
+	fmt.Printf("VerificationGetEvmAccounts: err = %v, result = %s\n", err, formatAsJSON(res))
+
+	accs, err := api.GetEvmAccounts(&dscApi.OptionalParams{Limit: 1})
+	if err == nil && len(accs) > 0 {
+		res, err = apiVerificator.VerificationGetEvmAccount(accs[0].Address)
+		fmt.Printf("VerificationGetEvmAccount: err = %v, result = %s\n", err, formatAsJSON(res))
+	}
+
+	res, err = apiVerificator.VerificationGetEvmContractEvents("", &dscSwagger.OptionalParams{Limit: 1})
+	fmt.Printf("VerificationGetEvmContractEvents: err = %v, result = %s\n", err, formatAsJSON(res))
+
+	res, err = apiVerificator.VerificationGetEvmAccountBalances("", &dscSwagger.OptionalParams{Limit: 1})
+	fmt.Printf("VerificationGetEvmAccountBalances: err = %v, result = %s\n", err, formatAsJSON(res))
+
+	res, err = apiVerificator.VerificationGetValidatorsByKind("validator")
+	fmt.Printf("VerificationGetValidatorsByKind: err = %v, result = %s\n", err, formatAsJSON(res))
+
+	res, err = apiVerificator.VerificationGetValidatorsCoins("del", &dscSwagger.OptionalParams{Limit: 1})
+	fmt.Printf("VerificationGetValidatorsCoins: err = %v, result = %s\n", err, formatAsJSON(res))
+
+	vals, err := api.GetValidatorsByKind("validator")
+	if err == nil && len(vals) > 0 {
+		res, err = apiVerificator.VerificationGetValidator(vals[0].Address)
+		fmt.Printf("VerificationGetValidator: err = %v, result = %s\n", err, formatAsJSON(res))
+
+		res, err = apiVerificator.VerificationGetValidatorStakes(vals[0].Address, &dscSwagger.OptionalParams{Limit: 1})
+		fmt.Printf("VerificationGetValidatorStakes: err = %v, result = %s\n", err, formatAsJSON(res))
+
+		//res, err = apiVerificator.VerificationGetValidatorStakesNFT(vals[0].Address)
+		//fmt.Printf("VerificationGetValidatorStakesNFT: err = %v, result = %s\n", err, formatAsJSON(res))
+	}
 }
 
 //helper function

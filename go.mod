@@ -3,12 +3,13 @@ module bitbucket.org/decimalteam/dsc-go-sdk
 go 1.18
 
 require (
-	bitbucket.org/decimalteam/go-smart-node v0.0.8-0.20220823055108-82eaf8a96b7f
+	bitbucket.org/decimalteam/go-smart-node v0.0.8-0.20220901034456-630d7927df0f
 	cosmossdk.io/math v1.0.0-beta.3
 	github.com/cosmos/cosmos-sdk v0.46.0
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/evmos/ethermint v0.6.1-0.20220814092117-f11bc3559467
 	github.com/go-resty/resty/v2 v2.7.0
+	github.com/gorilla/websocket v1.5.0
 	github.com/stretchr/testify v1.8.0
 )
 
@@ -53,7 +54,6 @@ require (
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/btree v1.0.1 // indirect
-	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0 // indirect
 	github.com/gsterjov/go-libsecret v0.0.0-20161001094733-a6f4afe4910c // indirect
@@ -107,7 +107,7 @@ require (
 	golang.org/x/sys v0.0.0-20220615213510-4f61da869c0c // indirect
 	golang.org/x/term v0.0.0-20220526004731-065cf7ba2467 // indirect
 	golang.org/x/text v0.3.7 // indirect
-	google.golang.org/genproto v0.0.0-20220812140447-cec7f5303424 // indirect
+	google.golang.org/genproto v0.0.0-20220815135757-37a418bb8959 // indirect
 	google.golang.org/grpc v1.48.0 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/ini.v1 v1.66.6 // indirect
