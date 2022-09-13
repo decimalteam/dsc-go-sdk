@@ -21,7 +21,7 @@ type CoinInfo struct {
 	Volume      math.Int
 	Reserve     math.Int
 	LimitVolume math.Int
-	CRR         int64
+	CRR         uint64
 	Creator     string
 }
 
@@ -41,11 +41,12 @@ type BlockInfo struct {
 
 type TxInfo struct {
 	Hash   string
-	Status uint64
+	Status string
 	Type   string
 	Block  int64
 	From   string
 	To     string
+	Code   int64
 }
 
 // EVM
@@ -97,10 +98,11 @@ type ValidatorStake struct {
 }
 
 type ValidatorStakeNFT struct {
-	CoinSymbol  string
-	Amount      math.Int
-	AddressId   string
-	ValidatorId string
+	BaseQuantity  math.Int
+	AddressId     string
+	NftId         string
+	NftCollection string
+	Count         uint64
 }
 
 type ValidatorStakedCoin struct {

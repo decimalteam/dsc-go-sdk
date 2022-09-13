@@ -64,6 +64,7 @@ func converterGetTxByHash(resp resultGetTx) (*TxInfo, error) {
 	res.To = resp.Result.To
 	res.Hash = resp.Result.Hash
 	res.Status = resp.Result.Status
+	res.Code = resp.Result.Code
 	return &res, nil
 }
 
@@ -75,6 +76,7 @@ func converterGetTxs(resp resultGetTxs) ([]TxInfo, error) {
 		res[i].To = tx.To
 		res[i].Hash = tx.Hash
 		res[i].Status = tx.Status
+		res[i].Code = tx.Code
 	}
 	return res, nil
 }
@@ -87,6 +89,7 @@ func converterGetAddressTxs(resp resultGetAddressTxs) ([]TxInfo, error) {
 		res[i].To = tx.To
 		res[i].Hash = tx.Hash
 		res[i].Status = tx.Status
+		res[i].Code = tx.Code
 	}
 	return res, nil
 }
@@ -181,13 +184,14 @@ func converterGetValidatorStakesNFT(resp resultGetValidatorStakesNFT) ([]Validat
 	var ok bool
 	var res = make([]ValidatorStakeNFT, len(resp.Result.Stakes))
 	for i, stake := range resp.Result.Stakes {
-		res[i].ValidatorId = stake.ValidatorId
 		res[i].AddressId = stake.AddressId
-		res[i].Amount, ok = math.NewIntFromString(stake.Amount)
+		res[i].BaseQuantity, ok = math.NewIntFromString(stake.BaseQuantity)
 		if !ok {
-			return nil, fmt.Errorf("cannot convert amount '%s' to math.Int", stake.Amount)
+			return nil, fmt.Errorf("cannot convert BaseQuantity '%s' to math.Int", stake.BaseQuantity)
 		}
-		res[i].CoinSymbol = stake.CoinSymbol
+		res[i].NftId = stake.Nft.NftId
+		res[i].NftCollection = stake.Nft.NftCollection
+		res[i].Count = stake.Count
 	}
 	return res, nil
 }

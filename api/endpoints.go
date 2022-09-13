@@ -12,26 +12,31 @@ import (
 type resultGetAddress struct {
 	Ok     bool `json:"ok"`
 	Result struct {
-		CreatedAt string `json:"createdAt"`
-		UpdatedAt string `json:"updatedAt"`
-		Address   string `json:"address"`
-		Type      string `json:"type"`
-		Balance   struct {
-			Del string `json:"del"`
+		Address     string `json:"address"`
+		Type        string `json:"type"`
+		AddressBook struct {
+			Id      uint64 `json:"id"`
+			Name    string `json:"name"`
+			Address string `json:"address"`
+			Comment string `json:"comment"`
+		} `json:"addressBook"`
+		Balance struct {
+			String string `json:"string"`
 		} `json:"balance"`
 		BalanceNft []struct {
 			NftId      string `json:"nftId"`
 			Amount     string `json:"amount"`
 			Collection string `json:"collection"`
 		} `json:"balanceNft"`
-		Nonce         uint64 `json:"nonce"`
-		Txes          uint64 `json:"txes"`
-		UnbondBalance struct {
-			Del string `json:"del"`
-		} `json:"unbondBalance"`
+		Nonce        uint64 `json:"nonce"`
+		Txes         uint64 `json:"txes"`
 		StakeBalance struct {
-			Del string `json:"del"`
+			String string `json:"string"`
 		} `json:"stakeBalance"`
+		UnbondBalance struct {
+			String string `json:"string"`
+		} `json:"unbondBalance"`
+		GeneratedWallets []uint64 `json:"generatedWallets"`
 	} `json:"result"`
 }
 
@@ -68,22 +73,34 @@ type resultGetAddressTxs struct {
 	Result struct {
 		Count int64 `json:"count"`
 		Txs   []struct {
-			CreatedAt string `json:"createdAt"`
-			UpdatedAt string `json:"updatedAt"`
 			Hash      string `json:"hash"`
 			Timestamp string `json:"timestamp"`
-			Status    uint64 `json:"status"`
+			Status    string `json:"status"`
 			Type      string `json:"type"`
 			Fee       struct {
-				Coin   string `json:"coin"`
-				Amount string `json:"amount"`
+				Gas_coin        string `json:"gas_coin"`
+				Gas_used        string `json:"gas_used"`
+				Gas_amount      string `json:"gas_amount"`
+				Gas_used_number string `json:"gas_used_number"`
 			} `json:"fee"`
-			Data    interface{} `json:"data"`
-			Nonce   int64       `json:"nonce"`
-			BlockId int64       `json:"blockId"`
-			Message string      `json:"message"`
-			From    string      `json:"from"`
-			To      string      `json:"to"`
+			Data struct {
+				Coin               string `json:"coin"`
+				Amount             string `json:"amount"`
+				Issuer             string `json:"issuer"`
+				Sender             string `json:"sender"`
+				EvmDataTransaction struct {
+					Coin      string `json:"coin"`
+					Amount    string `json:"amount"`
+					Sender    string `json:"sender"`
+					Recipient string `json:"recipient"`
+				} `json:"evmDataTransaction"`
+			} `json:"data"`
+			Nonce   int64  `json:"nonce"`
+			Code    int64  `json:"code"`
+			BlockId int64  `json:"blockId"`
+			Message string `json:"message"`
+			From    string `json:"from"`
+			To      string `json:"to"`
 		} `json:"txs"`
 	} `json:"result"`
 }
@@ -124,12 +141,19 @@ type resultGetAddressStakes struct {
 	Result struct {
 		Count  int64 `json:"count"`
 		Stakes []struct {
-			CreatedAt   string `json:"createdAt"`
-			UpdatedAt   string `json:"updatedAt"`
-			CoinSymbol  string `json:"coinSymbol"`
-			Amount      string `json:"amount"`
-			AddressId   string `json:"addressId"`
-			ValidatorId string `json:"validatorId"`
+			Id               uint64 `json:"id"`
+			Amount           string `json:"amount"`
+			CoinSymbol       string `json:"coinSymbol"`
+			BaseAmount       string `json:"baseAmount"`
+			UnbondAmount     string `json:"unbondAmount"`
+			UnbondBaseAmount string `json:"unbondBaseAmount"`
+			AddressId        string `json:"addressId"`
+			ValidatorId      string `json:"validatorId"`
+			CreatedAt        string `json:"createdAt"`
+			UpdatedAt        string `json:"updatedAt"`
+			Coin             struct {
+				Avatar string `json:"avatar"`
+			} `json:"coin"`
 		} `json:"stakes"`
 	} `json:"result"`
 }
@@ -170,12 +194,19 @@ type resultGetAddressRewards struct {
 	Result struct {
 		Count   int64 `json:"count"`
 		Rewards []struct {
-			CreatedAt   string `json:"createdAt"`
-			UpdatedAt   string `json:"updatedAt"`
-			CoinSymbol  string `json:"coinSymbol"`
-			Amount      string `json:"amount"`
-			AddressId   string `json:"addressId"`
-			ValidatorId string `json:"validatorId"`
+			Id               uint64 `json:"id"`
+			Amount           string `json:"amount"`
+			CoinSymbol       string `json:"coinSymbol"`
+			BaseAmount       string `json:"baseAmount"`
+			UnbondAmount     string `json:"unbondAmount"`
+			UnbondBaseAmount string `json:"unbondBaseAmount"`
+			AddressId        string `json:"addressId"`
+			ValidatorId      string `json:"validatorId"`
+			CreatedAt        string `json:"createdAt"`
+			UpdatedAt        string `json:"updatedAt"`
+			Coin             struct {
+				Avatar string `json:"avatar"`
+			} `json:"coin"`
 		} `json:"rewards"`
 	} `json:"result"`
 }
@@ -293,22 +324,34 @@ type resultGetNFTTransactions struct {
 	Result struct {
 		Count int64 `json:"count"`
 		Txs   []struct {
-			CreatedAt string `json:"createdAt"`
-			UpdatedAt string `json:"updatedAt"`
 			Hash      string `json:"hash"`
 			Timestamp string `json:"timestamp"`
-			Status    uint64 `json:"status"`
+			Status    string `json:"status"`
 			Type      string `json:"type"`
 			Fee       struct {
-				Coin   string `json:"coin"`
-				Amount string `json:"amount"`
+				Gas_coin        string `json:"gas_coin"`
+				Gas_used        string `json:"gas_used"`
+				Gas_amount      string `json:"gas_amount"`
+				Gas_used_number string `json:"gas_used_number"`
 			} `json:"fee"`
-			Data    interface{} `json:"data"`
-			Nonce   int64       `json:"nonce"`
-			BlockId int64       `json:"blockId"`
-			Message string      `json:"message"`
-			From    string      `json:"from"`
-			To      string      `json:"to"`
+			Data struct {
+				Coin               string `json:"coin"`
+				Amount             string `json:"amount"`
+				Issuer             string `json:"issuer"`
+				Sender             string `json:"sender"`
+				EvmDataTransaction struct {
+					Coin      string `json:"coin"`
+					Amount    string `json:"amount"`
+					Sender    string `json:"sender"`
+					Recipient string `json:"recipient"`
+				} `json:"evmDataTransaction"`
+			} `json:"data"`
+			Nonce   int64  `json:"nonce"`
+			Code    int64  `json:"code"`
+			BlockId int64  `json:"blockId"`
+			Message string `json:"message"`
+			From    string `json:"from"`
+			To      string `json:"to"`
 		} `json:"txs"`
 	} `json:"result"`
 }
@@ -348,22 +391,34 @@ func (api *API) GetNFTTransactions(collection string, id string, opt *OptionalPa
 type resultGetTx struct {
 	Ok     bool `json:"ok"`
 	Result struct {
-		CreatedAt string `json:"createdAt"`
-		UpdatedAt string `json:"updatedAt"`
 		Hash      string `json:"hash"`
 		Timestamp string `json:"timestamp"`
-		Status    uint64 `json:"status"`
+		Status    string `json:"status"`
 		Type      string `json:"type"`
 		Fee       struct {
-			Coin   string `json:"coin"`
-			Amount string `json:"amount"`
+			Gas_coin        string `json:"gas_coin"`
+			Gas_used        string `json:"gas_used"`
+			Gas_amount      string `json:"gas_amount"`
+			Gas_used_number string `json:"gas_used_number"`
 		} `json:"fee"`
-		Data    interface{} `json:"data"`
-		Nonce   int64       `json:"nonce"`
-		BlockId int64       `json:"blockId"`
-		Message string      `json:"message"`
-		From    string      `json:"from"`
-		To      string      `json:"to"`
+		Data struct {
+			Coin               string `json:"coin"`
+			Amount             string `json:"amount"`
+			Issuer             string `json:"issuer"`
+			Sender             string `json:"sender"`
+			EvmDataTransaction struct {
+				Coin      string `json:"coin"`
+				Amount    string `json:"amount"`
+				Sender    string `json:"sender"`
+				Recipient string `json:"recipient"`
+			} `json:"evmDataTransaction"`
+		} `json:"data"`
+		Nonce   int64  `json:"nonce"`
+		Code    int64  `json:"code"`
+		BlockId int64  `json:"blockId"`
+		Message string `json:"message"`
+		From    string `json:"from"`
+		To      string `json:"to"`
 	} `json:"result"`
 }
 
@@ -400,22 +455,34 @@ type resultGetTxs struct {
 	Result struct {
 		Count int64 `json:"count"`
 		Txs   []struct {
-			CreatedAt string `json:"createdAt"`
-			UpdatedAt string `json:"updatedAt"`
 			Hash      string `json:"hash"`
 			Timestamp string `json:"timestamp"`
-			Status    uint64 `json:"status"`
+			Status    string `json:"status"`
 			Type      string `json:"type"`
 			Fee       struct {
-				Coin   string `json:"coin"`
-				Amount string `json:"amount"`
+				Gas_coin        string `json:"gas_coin"`
+				Gas_used        string `json:"gas_used"`
+				Gas_amount      string `json:"gas_amount"`
+				Gas_used_number string `json:"gas_used_number"`
 			} `json:"fee"`
-			Data    interface{} `json:"data"`
-			Nonce   int64       `json:"nonce"`
-			BlockId int64       `json:"blockId"`
-			Message string      `json:"message"`
-			From    string      `json:"from"`
-			To      string      `json:"to"`
+			Data struct {
+				Coin               string `json:"coin"`
+				Amount             string `json:"amount"`
+				Issuer             string `json:"issuer"`
+				Sender             string `json:"sender"`
+				EvmDataTransaction struct {
+					Coin      string `json:"coin"`
+					Amount    string `json:"amount"`
+					Sender    string `json:"sender"`
+					Recipient string `json:"recipient"`
+				} `json:"evmDataTransaction"`
+			} `json:"data"`
+			Nonce   int64  `json:"nonce"`
+			Code    int64  `json:"code"`
+			BlockId int64  `json:"blockId"`
+			Message string `json:"message"`
+			From    string `json:"from"`
+			To      string `json:"to"`
 		} `json:"txs"`
 	} `json:"result"`
 }
@@ -451,21 +518,25 @@ func (api *API) GetTxs(opt *OptionalParams) ([]TxInfo, error) {
 type resultGetCoins struct {
 	Ok     bool `json:"ok"`
 	Result struct {
-		CountAllCoin int64  `json:"countAllCoin"`
+		Count        uint64 `json:"count"`
 		TotalReserve string `json:"totalReserve"`
 		Coins        []struct {
-			Symbol      string `json:"symbol"`
-			Title       string `json:"title"`
-			Volume      string `json:"volume"`
-			Reserve     string `json:"reserve"`
-			Crr         int64  `json:"crr"`
-			LimitVolume string `json:"limitVolume"`
-			Creator     string `json:"creator"`
-			TxHash      string `json:"txHash"`
-			BlockId     string `json:"blockId"`
-			Price       string `json:"price"`
-			Delegated   string `json:"delegated"`
-			Avatar      string `json:"avatar"`
+			Symbol          string `json:"symbol"`
+			Title           string `json:"title"`
+			Volume          string `json:"volume"`
+			Reserve         string `json:"reserve"`
+			Crr             uint64 `json:"crr"`
+			LimitVolume     string `json:"limitVolume"`
+			PriceUSD        string `json:"priceUSD"`
+			Creator         string `json:"creator"`
+			TxHash          string `json:"txHash"`
+			BlockId         uint64 `json:"blockId"`
+			Avatar          string `json:"avatar"`
+			ContractAddress string `json:"contractAddress"`
+			Burn            string `json:"burn"`
+			Price           string `json:"price"`
+			ReserveUSD      string `json:"reserveUSD"`
+			Delegated       string `json:"delegated"`
 		} `json:"coins"`
 	} `json:"result"`
 }
@@ -643,22 +714,34 @@ type resultGetBlockTransactions struct {
 	Result struct {
 		Count int64 `json:"count"`
 		Txs   []struct {
-			CreatedAt string `json:"createdAt"`
-			UpdatedAt string `json:"updatedAt"`
 			Hash      string `json:"hash"`
 			Timestamp string `json:"timestamp"`
-			Status    uint64 `json:"status"`
+			Status    string `json:"status"`
 			Type      string `json:"type"`
 			Fee       struct {
-				Coin   string `json:"coin"`
-				Amount string `json:"amount"`
+				Gas_coin        string `json:"gas_coin"`
+				Gas_used        string `json:"gas_used"`
+				Gas_amount      string `json:"gas_amount"`
+				Gas_used_number string `json:"gas_used_number"`
 			} `json:"fee"`
-			Data    interface{} `json:"data"`
-			Nonce   int64       `json:"nonce"`
-			BlockId int64       `json:"blockId"`
-			Message string      `json:"message"`
-			From    string      `json:"from"`
-			To      string      `json:"to"`
+			Data struct {
+				Coin               string `json:"coin"`
+				Amount             string `json:"amount"`
+				Issuer             string `json:"issuer"`
+				Sender             string `json:"sender"`
+				EvmDataTransaction struct {
+					Coin      string `json:"coin"`
+					Amount    string `json:"amount"`
+					Sender    string `json:"sender"`
+					Recipient string `json:"recipient"`
+				} `json:"evmDataTransaction"`
+			} `json:"data"`
+			Nonce   int64  `json:"nonce"`
+			Code    int64  `json:"code"`
+			BlockId int64  `json:"blockId"`
+			Message string `json:"message"`
+			From    string `json:"from"`
+			To      string `json:"to"`
 		} `json:"txs"`
 	} `json:"result"`
 }
@@ -696,16 +779,32 @@ type resultGetEvmContracts struct {
 	Result struct {
 		Count        uint64 `json:"count"`
 		EvmContracts []struct {
-			CreatedAt                    string      `json:"createdAt"`
-			UpdatedAt                    string      `json:"updatedAt"`
-			Address                      string      `json:"address"`
-			Status                       string      `json:"status"`
-			Abi                          interface{} `json:"abi"`
-			ByteCode                     string      `json:"byteCode"`
-			DeploymentEvmAccountAddress  string      `json:"deploymentEvmAccountAddress"`
-			DeploymentEvmBlockHeight     uint64      `json:"deploymentEvmBlockHeight"`
-			DeploymentEvmTransactionHash string      `json:"deploymentEvmTransactionHash"`
-			DeploymentEvmReceiptId       uint64      `json:"deploymentEvmReceiptId"`
+			CreatedAt        string      `json:"createdAt"`
+			UpdatedAt        string      `json:"updatedAt"`
+			Address          string      `json:"address"`
+			Status           string      `json:"status"`
+			Abi              interface{} `json:"abi"`
+			ByteCode         string      `json:"byteCode"`
+			SourceCode       string      `json:"sourceCode"`
+			SecurityAudit    string      `json:"securityAudit"`
+			SwarmSource      string      `json:"swarmSource"`
+			VerificationData struct {
+				VerifiedAt           string `json:"verifiedAt"`
+				MatchType            string `json:"matchType"`
+				CompilerVersion      string `json:"compilerVersion"`
+				EvmVersion           string `json:"evmVersion"`
+				Optimization         bool   `json:"optimization"`
+				OptimizeRuns         uint64 `json:"optimizeRuns"`
+				ConstructorArguments string `json:"constructorArguments"`
+				Metadata             struct {
+					String string `json:"string"`
+				} `json:"metadata"`
+			} `json:"verificationData"`
+			DeploymentEvmAccountAddress  string `json:"deploymentEvmAccountAddress"`
+			DeploymentEvmBlockHeight     uint64 `json:"deploymentEvmBlockHeight"`
+			DeploymentEvmTransactionHash string `json:"deploymentEvmTransactionHash"`
+			DeploymentEvmReceiptId       uint64 `json:"deploymentEvmReceiptId"`
+			EvmAccountAddress            string `json:"evmAccountAddress"`
 		} `json:"evmContracts"`
 	} `json:"result"`
 }
@@ -803,6 +902,7 @@ type resultGetEvmAccounts struct {
 			CreatedAt                  string `json:"createdAt"`
 			UpdatedAt                  string `json:"updatedAt"`
 			Address                    string `json:"address"`
+			CosmosAccountAddress       string `json:"cosmosAccountAddress"`
 			CreationEvmBlockHeight     uint64 `json:"creationEvmBlockHeight"`
 			CreationEvmTransactionHash string `json:"creationEvmTransactionHash"`
 		} `json:"evmAccounts"`
@@ -840,16 +940,32 @@ func (api *API) GetEvmAccounts(opt *OptionalParams) ([]EvmAccount, error) {
 type resultGetEvmContract struct {
 	Ok     bool `json:"ok"`
 	Result struct {
-		CreatedAt                    string      `json:"createdAt"`
-		UpdatedAt                    string      `json:"updatedAt"`
-		Address                      string      `json:"address"`
-		Status                       string      `json:"status"`
-		Abi                          interface{} `json:"abi"`
-		ByteCode                     string      `json:"byteCode"`
-		DeploymentEvmAccountAddress  string      `json:"deploymentEvmAccountAddress"`
-		DeploymentEvmBlockHeight     uint64      `json:"deploymentEvmBlockHeight"`
-		DeploymentEvmTransactionHash string      `json:"deploymentEvmTransactionHash"`
-		DeploymentEvmReceiptId       uint64      `json:"deploymentEvmReceiptId"`
+		CreatedAt        string      `json:"createdAt"`
+		UpdatedAt        string      `json:"updatedAt"`
+		Address          string      `json:"address"`
+		Status           string      `json:"status"`
+		Abi              interface{} `json:"abi"`
+		ByteCode         string      `json:"byteCode"`
+		SourceCode       string      `json:"sourceCode"`
+		SecurityAudit    string      `json:"securityAudit"`
+		SwarmSource      string      `json:"swarmSource"`
+		VerificationData struct {
+			VerifiedAt           string `json:"verifiedAt"`
+			MatchType            string `json:"matchType"`
+			CompilerVersion      string `json:"compilerVersion"`
+			EvmVersion           string `json:"evmVersion"`
+			Optimization         bool   `json:"optimization"`
+			OptimizeRuns         uint64 `json:"optimizeRuns"`
+			ConstructorArguments string `json:"constructorArguments"`
+			Metadata             struct {
+				String string `json:"string"`
+			} `json:"metadata"`
+		} `json:"verificationData"`
+		DeploymentEvmAccountAddress  string `json:"deploymentEvmAccountAddress"`
+		DeploymentEvmBlockHeight     uint64 `json:"deploymentEvmBlockHeight"`
+		DeploymentEvmTransactionHash string `json:"deploymentEvmTransactionHash"`
+		DeploymentEvmReceiptId       uint64 `json:"deploymentEvmReceiptId"`
+		EvmAccountAddress            string `json:"evmAccountAddress"`
 	} `json:"result"`
 }
 
@@ -941,6 +1057,7 @@ type resultGetEvmAccount struct {
 		CreatedAt                  string `json:"createdAt"`
 		UpdatedAt                  string `json:"updatedAt"`
 		Address                    string `json:"address"`
+		CosmosAccountAddress       string `json:"cosmosAccountAddress"`
 		CreationEvmBlockHeight     uint64 `json:"creationEvmBlockHeight"`
 		CreationEvmTransactionHash string `json:"creationEvmTransactionHash"`
 	} `json:"result"`
@@ -1146,16 +1263,32 @@ type resultGetEvmAccountBalances struct {
 					EvmContractAddress string `json:"evmContractAddress"`
 					EvmTokenTypeName   string `json:"evmTokenTypeName"`
 					EvmContract        struct {
-						CreatedAt                    string      `json:"createdAt"`
-						UpdatedAt                    string      `json:"updatedAt"`
-						Address                      string      `json:"address"`
-						Status                       string      `json:"status"`
-						Abi                          interface{} `json:"abi"`
-						ByteCode                     string      `json:"byteCode"`
-						DeploymentEvmAccountAddress  string      `json:"deploymentEvmAccountAddress"`
-						DeploymentEvmBlockHeight     uint64      `json:"deploymentEvmBlockHeight"`
-						DeploymentEvmTransactionHash string      `json:"deploymentEvmTransactionHash"`
-						DeploymentEvmReceiptId       uint64      `json:"deploymentEvmReceiptId"`
+						CreatedAt        string      `json:"createdAt"`
+						UpdatedAt        string      `json:"updatedAt"`
+						Address          string      `json:"address"`
+						Status           string      `json:"status"`
+						Abi              interface{} `json:"abi"`
+						ByteCode         string      `json:"byteCode"`
+						SourceCode       string      `json:"sourceCode"`
+						SecurityAudit    string      `json:"securityAudit"`
+						SwarmSource      string      `json:"swarmSource"`
+						VerificationData struct {
+							VerifiedAt           string `json:"verifiedAt"`
+							MatchType            string `json:"matchType"`
+							CompilerVersion      string `json:"compilerVersion"`
+							EvmVersion           string `json:"evmVersion"`
+							Optimization         bool   `json:"optimization"`
+							OptimizeRuns         uint64 `json:"optimizeRuns"`
+							ConstructorArguments string `json:"constructorArguments"`
+							Metadata             struct {
+								String string `json:"string"`
+							} `json:"metadata"`
+						} `json:"verificationData"`
+						DeploymentEvmAccountAddress  string `json:"deploymentEvmAccountAddress"`
+						DeploymentEvmBlockHeight     uint64 `json:"deploymentEvmBlockHeight"`
+						DeploymentEvmTransactionHash string `json:"deploymentEvmTransactionHash"`
+						DeploymentEvmReceiptId       uint64 `json:"deploymentEvmReceiptId"`
+						EvmAccountAddress            string `json:"evmAccountAddress"`
 					} `json:"evmContract"`
 				} `json:"evmToken"`
 			} `json:"evmAccountERC20TokenBalances"`
@@ -1172,16 +1305,32 @@ type resultGetEvmAccountBalances struct {
 					EvmContractAddress string `json:"evmContractAddress"`
 					EvmTokenTypeName   string `json:"evmTokenTypeName"`
 					EvmContract        struct {
-						CreatedAt                    string      `json:"createdAt"`
-						UpdatedAt                    string      `json:"updatedAt"`
-						Address                      string      `json:"address"`
-						Status                       string      `json:"status"`
-						Abi                          interface{} `json:"abi"`
-						ByteCode                     string      `json:"byteCode"`
-						DeploymentEvmAccountAddress  string      `json:"deploymentEvmAccountAddress"`
-						DeploymentEvmBlockHeight     uint64      `json:"deploymentEvmBlockHeight"`
-						DeploymentEvmTransactionHash string      `json:"deploymentEvmTransactionHash"`
-						DeploymentEvmReceiptId       uint64      `json:"deploymentEvmReceiptId"`
+						CreatedAt        string      `json:"createdAt"`
+						UpdatedAt        string      `json:"updatedAt"`
+						Address          string      `json:"address"`
+						Status           string      `json:"status"`
+						Abi              interface{} `json:"abi"`
+						ByteCode         string      `json:"byteCode"`
+						SourceCode       string      `json:"sourceCode"`
+						SecurityAudit    string      `json:"securityAudit"`
+						SwarmSource      string      `json:"swarmSource"`
+						VerificationData struct {
+							VerifiedAt           string `json:"verifiedAt"`
+							MatchType            string `json:"matchType"`
+							CompilerVersion      string `json:"compilerVersion"`
+							EvmVersion           string `json:"evmVersion"`
+							Optimization         bool   `json:"optimization"`
+							OptimizeRuns         uint64 `json:"optimizeRuns"`
+							ConstructorArguments string `json:"constructorArguments"`
+							Metadata             struct {
+								String string `json:"string"`
+							} `json:"metadata"`
+						} `json:"verificationData"`
+						DeploymentEvmAccountAddress  string `json:"deploymentEvmAccountAddress"`
+						DeploymentEvmBlockHeight     uint64 `json:"deploymentEvmBlockHeight"`
+						DeploymentEvmTransactionHash string `json:"deploymentEvmTransactionHash"`
+						DeploymentEvmReceiptId       uint64 `json:"deploymentEvmReceiptId"`
+						EvmAccountAddress            string `json:"evmAccountAddress"`
 					} `json:"evmContract"`
 				} `json:"evmToken"`
 			} `json:"evmAccountERC721TokenBalance"`
@@ -1198,16 +1347,32 @@ type resultGetEvmAccountBalances struct {
 					EvmContractAddress string `json:"evmContractAddress"`
 					EvmTokenTypeName   string `json:"evmTokenTypeName"`
 					EvmContract        struct {
-						CreatedAt                    string      `json:"createdAt"`
-						UpdatedAt                    string      `json:"updatedAt"`
-						Address                      string      `json:"address"`
-						Status                       string      `json:"status"`
-						Abi                          interface{} `json:"abi"`
-						ByteCode                     string      `json:"byteCode"`
-						DeploymentEvmAccountAddress  string      `json:"deploymentEvmAccountAddress"`
-						DeploymentEvmBlockHeight     uint64      `json:"deploymentEvmBlockHeight"`
-						DeploymentEvmTransactionHash string      `json:"deploymentEvmTransactionHash"`
-						DeploymentEvmReceiptId       uint64      `json:"deploymentEvmReceiptId"`
+						CreatedAt        string      `json:"createdAt"`
+						UpdatedAt        string      `json:"updatedAt"`
+						Address          string      `json:"address"`
+						Status           string      `json:"status"`
+						Abi              interface{} `json:"abi"`
+						ByteCode         string      `json:"byteCode"`
+						SourceCode       string      `json:"sourceCode"`
+						SecurityAudit    string      `json:"securityAudit"`
+						SwarmSource      string      `json:"swarmSource"`
+						VerificationData struct {
+							VerifiedAt           string `json:"verifiedAt"`
+							MatchType            string `json:"matchType"`
+							CompilerVersion      string `json:"compilerVersion"`
+							EvmVersion           string `json:"evmVersion"`
+							Optimization         bool   `json:"optimization"`
+							OptimizeRuns         uint64 `json:"optimizeRuns"`
+							ConstructorArguments string `json:"constructorArguments"`
+							Metadata             struct {
+								String string `json:"string"`
+							} `json:"metadata"`
+						} `json:"verificationData"`
+						DeploymentEvmAccountAddress  string `json:"deploymentEvmAccountAddress"`
+						DeploymentEvmBlockHeight     uint64 `json:"deploymentEvmBlockHeight"`
+						DeploymentEvmTransactionHash string `json:"deploymentEvmTransactionHash"`
+						DeploymentEvmReceiptId       uint64 `json:"deploymentEvmReceiptId"`
+						EvmAccountAddress            string `json:"evmAccountAddress"`
 					} `json:"evmContract"`
 				} `json:"evmToken"`
 			} `json:"evmAccountERC1155TokenBalance"`
@@ -1252,8 +1417,25 @@ type resultGetValidatorsByKind struct {
 		Count      int64 `json:"count"`
 		Online     int64 `json:"online"`
 		Validators []struct {
-			Address string `json:"address"`
-			BlockId int64  `json:"blockId"`
+			Address          string `json:"address"`
+			ConsensusAddress string `json:"consensusAddress"`
+			RewardAddress    string `json:"rewardAddress"`
+			Moniker          string `json:"moniker"`
+			Website          string `json:"website"`
+			Details          string `json:"details"`
+			Identity         string `json:"identity"`
+			Security_contact string `json:"security_contact"`
+			BlockId          uint64 `json:"blockId"`
+			SkippedBlocks    uint64 `json:"skippedBlocks"`
+			Delegators       uint64 `json:"delegators"`
+			Fee              string `json:"fee"`
+			Slots            uint64 `json:"slots"`
+			Mins             string `json:"mins"`
+			Stake            string `json:"stake"`
+			Power            string `json:"power"`
+			Rating           string `json:"rating"`
+			Status           string `json:"status"`
+			Kind             string `json:"kind"`
 		} `json:"validators"`
 		FreeSlots int64 `json:"freeSlots"`
 	} `json:"result"`
@@ -1337,8 +1519,25 @@ func (api *API) GetValidatorsCoins(address string, opt *OptionalParams) ([]Valid
 type resultGetValidator struct {
 	Ok     bool `json:"ok"`
 	Result struct {
-		Address string `json:"address"`
-		BlockId int64  `json:"blockId"`
+		Address          string `json:"address"`
+		ConsensusAddress string `json:"consensusAddress"`
+		RewardAddress    string `json:"rewardAddress"`
+		Moniker          string `json:"moniker"`
+		Website          string `json:"website"`
+		Details          string `json:"details"`
+		Identity         string `json:"identity"`
+		Security_contact string `json:"security_contact"`
+		BlockId          uint64 `json:"blockId"`
+		SkippedBlocks    uint64 `json:"skippedBlocks"`
+		Delegators       uint64 `json:"delegators"`
+		Fee              string `json:"fee"`
+		Slots            uint64 `json:"slots"`
+		Mins             string `json:"mins"`
+		Stake            string `json:"stake"`
+		Power            string `json:"power"`
+		Rating           string `json:"rating"`
+		Status           string `json:"status"`
+		Kind             string `json:"kind"`
 	} `json:"result"`
 }
 
@@ -1375,12 +1574,19 @@ type resultGetValidatorStakes struct {
 	Result struct {
 		Count  int64 `json:"count"`
 		Stakes []struct {
-			CreatedAt   string `json:"createdAt"`
-			UpdatedAt   string `json:"updatedAt"`
-			CoinSymbol  string `json:"coinSymbol"`
-			Amount      string `json:"amount"`
-			AddressId   string `json:"addressId"`
-			ValidatorId string `json:"validatorId"`
+			Id               uint64 `json:"id"`
+			Amount           string `json:"amount"`
+			CoinSymbol       string `json:"coinSymbol"`
+			BaseAmount       string `json:"baseAmount"`
+			UnbondAmount     string `json:"unbondAmount"`
+			UnbondBaseAmount string `json:"unbondBaseAmount"`
+			AddressId        string `json:"addressId"`
+			ValidatorId      string `json:"validatorId"`
+			CreatedAt        string `json:"createdAt"`
+			UpdatedAt        string `json:"updatedAt"`
+			Coin             struct {
+				Avatar string `json:"avatar"`
+			} `json:"coin"`
 		} `json:"stakes"`
 	} `json:"result"`
 }
@@ -1421,12 +1627,15 @@ type resultGetValidatorStakesNFT struct {
 	Result struct {
 		Count  int64 `json:"count"`
 		Stakes []struct {
-			CreatedAt   string `json:"createdAt"`
-			UpdatedAt   string `json:"updatedAt"`
-			CoinSymbol  string `json:"coinSymbol"`
-			Amount      string `json:"amount"`
-			AddressId   string `json:"addressId"`
-			ValidatorId string `json:"validatorId"`
+			BaseQuantity string `json:"baseQuantity"`
+			AddressId    string `json:"addressId"`
+			Count        uint64 `json:"count"`
+			Nft          struct {
+				NftCollection string `json:"nftCollection"`
+				NftId         string `json:"nftId"`
+				TokenUri      string `json:"tokenUri"`
+			} `json:"nft"`
+			Cover string `json:"cover"`
 		} `json:"stakes"`
 	} `json:"result"`
 }

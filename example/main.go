@@ -17,31 +17,33 @@ import (
 
 func main() {
 	verifyEndpoints()
+
+	api := dscApi.NewAPI(
+		"https://devnet-dec2-explorer-api.decimalchain.com/api/",
+		"https://devnet-dec2-node-01.decimalchain.com/rpc/",
+		"https://devnet-dec2-node-01.decimalchain.com/rest/",
+	)
+
+	err := api.GetParameters()
+	if err != nil {
+		fmt.Printf("GetParameters() error: %v\n", err)
+		return
+	}
+
 	/*
-		api := dscApi.NewAPI(
-			"https://devnet-dec2-explorer-api.decimalchain.com/api/",
-			"https://devnet-dec2-node-01.decimalchain.com/rpc/",
-			"https://devnet-dec2-node-01.decimalchain.com/rest/",
-		)
-
-		err := api.GetParameters()
-		if err != nil {
-			fmt.Printf("GetParameters() error: %v\n", err)
-			return
-		}
-
 		we, err := dscApi.CreateTxSubscription("wss://devnet-dec2-explorer-api.decimalchain.com/api")
 		if err != nil {
 			fmt.Printf("CreateTxSubscription() error: %v\n", err)
 			return
 		}
 		go we.ReadCycle()
-
-		//printBlockchainInfo(api)
-
-		sampleSendCoins(api)
-		time.Sleep(time.Second * 10)
 	*/
+
+	printBlockchainInfo(api)
+
+	//sampleSendCoins(api)
+	time.Sleep(time.Second * 10)
+
 }
 
 func verifyEndpoints() {
