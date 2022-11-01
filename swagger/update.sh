@@ -1,6 +1,6 @@
 #!/bin/bash
 
-curl -o documentation.json https://devnet-dec2-explorer-api.decimalchain.com/api/documentation.json
+curl -o documentation.json https://devnet-explorer-api.decimalchain.com/api/documentation.json
 ./gpretty.py
 ./swagger2code.py
 gofmt -w endpoints.go

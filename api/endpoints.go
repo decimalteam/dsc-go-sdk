@@ -37,6 +37,35 @@ type resultGetAddress struct {
 			String string `json:"string"`
 		} `json:"unbondBalance"`
 		GeneratedWallets []uint64 `json:"generatedWallets"`
+		EvmAccountInfo   struct {
+			Address                      string `json:"address"`
+			EvmAccountERC20TokenBalances []struct {
+				Amount         string `json:"amount"`
+				EvmTokenSchema struct {
+					Address string `json:"address"`
+					Symbol  string `json:"symbol"`
+					Title   string `json:"title"`
+				} `json:"evmTokenSchema"`
+			} `json:"evmAccountERC20TokenBalances"`
+			EvmAccountERC721TokenBalances []struct {
+				Amount         string `json:"amount"`
+				TokenId        string `json:"tokenId"`
+				EvmTokenSchema struct {
+					Address string `json:"address"`
+					Symbol  string `json:"symbol"`
+					Title   string `json:"title"`
+				} `json:"evmTokenSchema"`
+			} `json:"evmAccountERC721TokenBalances"`
+			EvmAccountERC1155TokenBalances []struct {
+				Amount         string `json:"amount"`
+				TokenId        string `json:"tokenId"`
+				EvmTokenSchema struct {
+					Address string `json:"address"`
+					Symbol  string `json:"symbol"`
+					Title   string `json:"title"`
+				} `json:"evmTokenSchema"`
+			} `json:"evmAccountERC1155TokenBalances"`
+		} `json:"evmAccountInfo"`
 	} `json:"result"`
 }
 
@@ -64,224 +93,6 @@ func (api *API) GetAddress(id string) (*AddressInfo, error) {
 	}
 	// process result
 	return converterGetAddress(respValue)
-}
-
-///////////////
-
-type resultGetAddressTxs struct {
-	Ok     bool `json:"ok"`
-	Result struct {
-		Count int64 `json:"count"`
-		Txs   []struct {
-			Hash      string `json:"hash"`
-			Timestamp string `json:"timestamp"`
-			Status    string `json:"status"`
-			Type      string `json:"type"`
-			Fee       struct {
-				Gas_coin        string `json:"gas_coin"`
-				Gas_used        string `json:"gas_used"`
-				Gas_amount      string `json:"gas_amount"`
-				Gas_used_number string `json:"gas_used_number"`
-			} `json:"fee"`
-			Data struct {
-				Coin               string `json:"coin"`
-				Amount             string `json:"amount"`
-				Issuer             string `json:"issuer"`
-				Sender             string `json:"sender"`
-				EvmDataTransaction struct {
-					Coin      string `json:"coin"`
-					Amount    string `json:"amount"`
-					Sender    string `json:"sender"`
-					Recipient string `json:"recipient"`
-				} `json:"evmDataTransaction"`
-			} `json:"data"`
-			Nonce   int64  `json:"nonce"`
-			Code    int64  `json:"code"`
-			BlockId int64  `json:"blockId"`
-			Message string `json:"message"`
-			From    string `json:"from"`
-			To      string `json:"to"`
-		} `json:"txs"`
-	} `json:"result"`
-}
-
-// /address/{id}/txs
-// Get address's transactions
-func (api *API) GetAddressTxs(id string, opt *OptionalParams) ([]TxInfo, error) {
-
-	var r = strings.NewReplacer(
-		"{id}", fmt.Sprintf("%s", id),
-	)
-	var link = r.Replace("/address/{id}/txs")
-	if opt != nil {
-		link += opt.String()
-	}
-
-	// request
-	res, err := api.client.R().Get(link)
-	if err = processConnectionError(res, err); err != nil {
-		return nil, err
-	}
-	// json decode
-	respValue, respErr := resultGetAddressTxs{}, Error{}
-	err = universalJSONDecode(res.Body(), &respValue, &respErr, func() (bool, bool) {
-		return respValue.Ok, respErr.StatusCode != 0
-	})
-	if err != nil {
-		return nil, joinErrors(err, respErr)
-	}
-	// process result
-	return converterGetAddressTxs(respValue)
-}
-
-///////////////
-
-type resultGetAddressStakes struct {
-	Ok     bool `json:"ok"`
-	Result struct {
-		Count  int64 `json:"count"`
-		Stakes []struct {
-			Id               uint64 `json:"id"`
-			Amount           string `json:"amount"`
-			CoinSymbol       string `json:"coinSymbol"`
-			BaseAmount       string `json:"baseAmount"`
-			UnbondAmount     string `json:"unbondAmount"`
-			UnbondBaseAmount string `json:"unbondBaseAmount"`
-			AddressId        string `json:"addressId"`
-			ValidatorId      string `json:"validatorId"`
-			CreatedAt        string `json:"createdAt"`
-			UpdatedAt        string `json:"updatedAt"`
-			Coin             struct {
-				Avatar string `json:"avatar"`
-			} `json:"coin"`
-		} `json:"stakes"`
-	} `json:"result"`
-}
-
-// /address/{address}/stakes
-// Get address's stakes
-func (api *API) GetAddressStakes(address string, opt *OptionalParams) ([]ValidatorStake, error) {
-
-	var r = strings.NewReplacer(
-		"{address}", fmt.Sprintf("%s", address),
-	)
-	var link = r.Replace("/address/{address}/stakes")
-	if opt != nil {
-		link += opt.String()
-	}
-
-	// request
-	res, err := api.client.R().Get(link)
-	if err = processConnectionError(res, err); err != nil {
-		return nil, err
-	}
-	// json decode
-	respValue, respErr := resultGetAddressStakes{}, Error{}
-	err = universalJSONDecode(res.Body(), &respValue, &respErr, func() (bool, bool) {
-		return respValue.Ok, respErr.StatusCode != 0
-	})
-	if err != nil {
-		return nil, joinErrors(err, respErr)
-	}
-	// process result
-	return converterGetAddressStakes(respValue)
-}
-
-///////////////
-
-type resultGetAddressRewards struct {
-	Ok     bool `json:"ok"`
-	Result struct {
-		Count   int64 `json:"count"`
-		Rewards []struct {
-			Id               uint64 `json:"id"`
-			Amount           string `json:"amount"`
-			CoinSymbol       string `json:"coinSymbol"`
-			BaseAmount       string `json:"baseAmount"`
-			UnbondAmount     string `json:"unbondAmount"`
-			UnbondBaseAmount string `json:"unbondBaseAmount"`
-			AddressId        string `json:"addressId"`
-			ValidatorId      string `json:"validatorId"`
-			CreatedAt        string `json:"createdAt"`
-			UpdatedAt        string `json:"updatedAt"`
-			Coin             struct {
-				Avatar string `json:"avatar"`
-			} `json:"coin"`
-		} `json:"rewards"`
-	} `json:"result"`
-}
-
-// /address/{address}/rewards
-// Get address's rewards
-func (api *API) GetAddressRewards(address string, opt *OptionalParams) ([]Reward, error) {
-
-	var r = strings.NewReplacer(
-		"{address}", fmt.Sprintf("%s", address),
-	)
-	var link = r.Replace("/address/{address}/rewards")
-	if opt != nil {
-		link += opt.String()
-	}
-
-	// request
-	res, err := api.client.R().Get(link)
-	if err = processConnectionError(res, err); err != nil {
-		return nil, err
-	}
-	// json decode
-	respValue, respErr := resultGetAddressRewards{}, Error{}
-	err = universalJSONDecode(res.Body(), &respValue, &respErr, func() (bool, bool) {
-		return respValue.Ok, respErr.StatusCode != 0
-	})
-	if err != nil {
-		return nil, joinErrors(err, respErr)
-	}
-	// process result
-	return converterGetAddressRewards(respValue)
-}
-
-///////////////
-
-type resultGetAllNFT struct {
-	Ok     bool `json:"ok"`
-	Result struct {
-		Count int64 `json:"count"`
-		Nfts  []struct {
-			NftCollection string `json:"nftCollection"`
-			NftId         string `json:"nftId"`
-			Quantity      string `json:"quantity"`
-			Reserve       string `json:"reserve"`
-			Sender        string `json:"sender"`
-			Recipient     string `json:"recipient"`
-			TxHash        string `json:"txHash"`
-		} `json:"nfts"`
-	} `json:"result"`
-}
-
-// /nfts
-// Get all nfts
-func (api *API) GetAllNFT(opt *OptionalParams) ([]NFT, error) {
-
-	var link = "/nfts"
-	if opt != nil {
-		link += opt.String()
-	}
-
-	// request
-	res, err := api.client.R().Get(link)
-	if err = processConnectionError(res, err); err != nil {
-		return nil, err
-	}
-	// json decode
-	respValue, respErr := resultGetAllNFT{}, Error{}
-	err = universalJSONDecode(res.Body(), &respValue, &respErr, func() (bool, bool) {
-		return respValue.Ok, respErr.StatusCode != 0
-	})
-	if err != nil {
-		return nil, joinErrors(err, respErr)
-	}
-	// process result
-	return converterGetAllNFT(respValue)
 }
 
 ///////////////
@@ -329,10 +140,12 @@ type resultGetNFTTransactions struct {
 			Status    string `json:"status"`
 			Type      string `json:"type"`
 			Fee       struct {
-				Gas_coin        string `json:"gas_coin"`
-				Gas_used        string `json:"gas_used"`
-				Gas_amount      string `json:"gas_amount"`
-				Gas_used_number string `json:"gas_used_number"`
+				Data struct {
+					Gas_coin        string `json:"gas_coin"`
+					Gas_used        string `json:"gas_used"`
+					Gas_amount      string `json:"gas_amount"`
+					Gas_used_number uint64 `json:"gas_used_number"`
+				} `json:"data"`
 			} `json:"fee"`
 			Data struct {
 				Coin               string `json:"coin"`
@@ -346,12 +159,23 @@ type resultGetNFTTransactions struct {
 					Recipient string `json:"recipient"`
 				} `json:"evmDataTransaction"`
 			} `json:"data"`
-			Nonce   int64  `json:"nonce"`
-			Code    int64  `json:"code"`
-			BlockId int64  `json:"blockId"`
-			Message string `json:"message"`
-			From    string `json:"from"`
-			To      string `json:"to"`
+			Nonce              uint64 `json:"nonce"`
+			Code               uint64 `json:"code"`
+			BlockId            uint64 `json:"blockId"`
+			Message            string `json:"message"`
+			From               uint64 `json:"from"`
+			To                 uint64 `json:"to"`
+			MultisendReceivers []struct {
+				Address string `json:"address"`
+				Amount  string `json:"amount"`
+				Coin    string `json:"coin"`
+			} `json:"multisendReceivers"`
+			Sender struct {
+				Address string `json:"address"`
+			} `json:"sender"`
+			Recipient struct {
+				Address string `json:"address"`
+			} `json:"recipient"`
 		} `json:"txs"`
 	} `json:"result"`
 }
@@ -396,10 +220,12 @@ type resultGetTx struct {
 		Status    string `json:"status"`
 		Type      string `json:"type"`
 		Fee       struct {
-			Gas_coin        string `json:"gas_coin"`
-			Gas_used        string `json:"gas_used"`
-			Gas_amount      string `json:"gas_amount"`
-			Gas_used_number string `json:"gas_used_number"`
+			Data struct {
+				Gas_coin        string `json:"gas_coin"`
+				Gas_used        string `json:"gas_used"`
+				Gas_amount      string `json:"gas_amount"`
+				Gas_used_number uint64 `json:"gas_used_number"`
+			} `json:"data"`
 		} `json:"fee"`
 		Data struct {
 			Coin               string `json:"coin"`
@@ -413,12 +239,23 @@ type resultGetTx struct {
 				Recipient string `json:"recipient"`
 			} `json:"evmDataTransaction"`
 		} `json:"data"`
-		Nonce   int64  `json:"nonce"`
-		Code    int64  `json:"code"`
-		BlockId int64  `json:"blockId"`
-		Message string `json:"message"`
-		From    string `json:"from"`
-		To      string `json:"to"`
+		Nonce              uint64 `json:"nonce"`
+		Code               uint64 `json:"code"`
+		BlockId            uint64 `json:"blockId"`
+		Message            string `json:"message"`
+		From               uint64 `json:"from"`
+		To                 uint64 `json:"to"`
+		MultisendReceivers []struct {
+			Address string `json:"address"`
+			Amount  string `json:"amount"`
+			Coin    string `json:"coin"`
+		} `json:"multisendReceivers"`
+		Sender struct {
+			Address string `json:"address"`
+		} `json:"sender"`
+		Recipient struct {
+			Address string `json:"address"`
+		} `json:"recipient"`
 	} `json:"result"`
 }
 
@@ -460,10 +297,12 @@ type resultGetTxs struct {
 			Status    string `json:"status"`
 			Type      string `json:"type"`
 			Fee       struct {
-				Gas_coin        string `json:"gas_coin"`
-				Gas_used        string `json:"gas_used"`
-				Gas_amount      string `json:"gas_amount"`
-				Gas_used_number string `json:"gas_used_number"`
+				Data struct {
+					Gas_coin        string `json:"gas_coin"`
+					Gas_used        string `json:"gas_used"`
+					Gas_amount      string `json:"gas_amount"`
+					Gas_used_number uint64 `json:"gas_used_number"`
+				} `json:"data"`
 			} `json:"fee"`
 			Data struct {
 				Coin               string `json:"coin"`
@@ -477,12 +316,23 @@ type resultGetTxs struct {
 					Recipient string `json:"recipient"`
 				} `json:"evmDataTransaction"`
 			} `json:"data"`
-			Nonce   int64  `json:"nonce"`
-			Code    int64  `json:"code"`
-			BlockId int64  `json:"blockId"`
-			Message string `json:"message"`
-			From    string `json:"from"`
-			To      string `json:"to"`
+			Nonce              uint64 `json:"nonce"`
+			Code               uint64 `json:"code"`
+			BlockId            uint64 `json:"blockId"`
+			Message            string `json:"message"`
+			From               uint64 `json:"from"`
+			To                 uint64 `json:"to"`
+			MultisendReceivers []struct {
+				Address string `json:"address"`
+				Amount  string `json:"amount"`
+				Coin    string `json:"coin"`
+			} `json:"multisendReceivers"`
+			Sender struct {
+				Address string `json:"address"`
+			} `json:"sender"`
+			Recipient struct {
+				Address string `json:"address"`
+			} `json:"recipient"`
 		} `json:"txs"`
 	} `json:"result"`
 }
@@ -607,17 +457,16 @@ type resultGetBlocks struct {
 	Result struct {
 		Count  uint64 `json:"count"`
 		Blocks []struct {
-			CreatedAt       string `json:"createdAt"`
-			UpdatedAt       string `json:"updatedAt"`
-			Height          int64  `json:"height"`
+			Height          uint64 `json:"height"`
 			Date            string `json:"date"`
 			Hash            string `json:"hash"`
-			Size            int64  `json:"size"`
-			Reward          int64  `json:"reward"`
-			BlockTime       int64  `json:"blockTime"`
-			TxsCount        int64  `json:"txsCount"`
-			ValidatorsCount int64  `json:"validatorsCount"`
+			Size            uint64 `json:"size"`
+			Reward          uint64 `json:"reward"`
+			BlockTime       uint64 `json:"blockTime"`
+			TxsCount        uint64 `json:"txsCount"`
+			ValidatorsCount uint64 `json:"validatorsCount"`
 			ProposerId      string `json:"proposerId"`
+			CreatedAt       string `json:"createdAt"`
 		} `json:"blocks"`
 	} `json:"result"`
 }
@@ -653,20 +502,17 @@ func (api *API) GetBlocks(opt *OptionalParams) ([]BlockInfo, error) {
 type resultGetBlock struct {
 	Ok     bool `json:"ok"`
 	Result struct {
-		CreatedAt       string `json:"createdAt"`
-		UpdatedAt       string `json:"updatedAt"`
-		Height          int64  `json:"height"`
+		Height          uint64 `json:"height"`
 		Date            string `json:"date"`
 		Hash            string `json:"hash"`
-		Size            int64  `json:"size"`
-		Reward          int64  `json:"reward"`
-		BlockTime       int64  `json:"blockTime"`
-		TxsCount        int64  `json:"txsCount"`
-		ValidatorsCount int64  `json:"validatorsCount"`
+		Size            uint64 `json:"size"`
+		Reward          uint64 `json:"reward"`
+		BlockTime       uint64 `json:"blockTime"`
+		TxsCount        uint64 `json:"txsCount"`
+		ValidatorsCount uint64 `json:"validatorsCount"`
 		ProposerId      string `json:"proposerId"`
+		CreatedAt       string `json:"createdAt"`
 		EvmBlock        struct {
-			CreatedAt         string      `json:"createdAt"`
-			UpdatedAt         string      `json:"updatedAt"`
 			Height            uint64      `json:"height"`
 			Hash              string      `json:"hash"`
 			Date              string      `json:"date"`
@@ -677,6 +523,7 @@ type resultGetBlock struct {
 			Data              interface{} `json:"data"`
 			TransactionsCount uint64      `json:"transactionsCount"`
 			ReceiptsCount     uint64      `json:"receiptsCount"`
+			CreatedAt         string      `json:"createdAt"`
 		} `json:"evmBlock"`
 	} `json:"result"`
 }
@@ -719,10 +566,12 @@ type resultGetBlockTransactions struct {
 			Status    string `json:"status"`
 			Type      string `json:"type"`
 			Fee       struct {
-				Gas_coin        string `json:"gas_coin"`
-				Gas_used        string `json:"gas_used"`
-				Gas_amount      string `json:"gas_amount"`
-				Gas_used_number string `json:"gas_used_number"`
+				Data struct {
+					Gas_coin        string `json:"gas_coin"`
+					Gas_used        string `json:"gas_used"`
+					Gas_amount      string `json:"gas_amount"`
+					Gas_used_number uint64 `json:"gas_used_number"`
+				} `json:"data"`
 			} `json:"fee"`
 			Data struct {
 				Coin               string `json:"coin"`
@@ -736,12 +585,23 @@ type resultGetBlockTransactions struct {
 					Recipient string `json:"recipient"`
 				} `json:"evmDataTransaction"`
 			} `json:"data"`
-			Nonce   int64  `json:"nonce"`
-			Code    int64  `json:"code"`
-			BlockId int64  `json:"blockId"`
-			Message string `json:"message"`
-			From    string `json:"from"`
-			To      string `json:"to"`
+			Nonce              uint64 `json:"nonce"`
+			Code               uint64 `json:"code"`
+			BlockId            uint64 `json:"blockId"`
+			Message            string `json:"message"`
+			From               uint64 `json:"from"`
+			To                 uint64 `json:"to"`
+			MultisendReceivers []struct {
+				Address string `json:"address"`
+				Amount  string `json:"amount"`
+				Coin    string `json:"coin"`
+			} `json:"multisendReceivers"`
+			Sender struct {
+				Address string `json:"address"`
+			} `json:"sender"`
+			Recipient struct {
+				Address string `json:"address"`
+			} `json:"recipient"`
 		} `json:"txs"`
 	} `json:"result"`
 }
@@ -779,8 +639,6 @@ type resultGetEvmContracts struct {
 	Result struct {
 		Count        uint64 `json:"count"`
 		EvmContracts []struct {
-			CreatedAt        string      `json:"createdAt"`
-			UpdatedAt        string      `json:"updatedAt"`
 			Address          string      `json:"address"`
 			Status           string      `json:"status"`
 			Abi              interface{} `json:"abi"`
@@ -805,6 +663,7 @@ type resultGetEvmContracts struct {
 			DeploymentEvmTransactionHash string `json:"deploymentEvmTransactionHash"`
 			DeploymentEvmReceiptId       uint64 `json:"deploymentEvmReceiptId"`
 			EvmAccountAddress            string `json:"evmAccountAddress"`
+			CreatedAt                    string `json:"createdAt"`
 		} `json:"evmContracts"`
 	} `json:"result"`
 }
@@ -842,19 +701,17 @@ type resultGetEvmTransactions struct {
 	Result struct {
 		Count           uint64 `json:"count"`
 		EvmTransactions []struct {
-			CreatedAt            string      `json:"createdAt"`
-			UpdatedAt            string      `json:"updatedAt"`
 			Hash                 string      `json:"hash"`
 			V                    string      `json:"v"`
 			R                    string      `json:"r"`
 			S                    string      `json:"s"`
 			Gas                  uint64      `json:"gas"`
-			Type                 uint64      `json:"type"`
+			Type                 string      `json:"type"`
 			Input                string      `json:"input"`
 			Nonce                uint64      `json:"nonce"`
 			Value                string      `json:"value"`
 			ChainId              uint64      `json:"chainId"`
-			GasPrice             uint64      `json:"gasPrice"`
+			GasPrice             string      `json:"gasPrice"`
 			AccessList           interface{} `json:"accessList"`
 			MaxFeePerGas         uint64      `json:"maxFeePerGas"`
 			MaxPriorityFeePerGas uint64      `json:"maxPriorityFeePerGas"`
@@ -862,6 +719,7 @@ type resultGetEvmTransactions struct {
 			From                 string      `json:"from"`
 			To                   string      `json:"to"`
 			EvmBlockHeight       uint64      `json:"evmBlockHeight"`
+			CreatedAt            string      `json:"createdAt"`
 		} `json:"evmTransactions"`
 	} `json:"result"`
 }
@@ -899,12 +757,11 @@ type resultGetEvmAccounts struct {
 	Result struct {
 		Count       uint64 `json:"count"`
 		EvmAccounts []struct {
-			CreatedAt                  string `json:"createdAt"`
-			UpdatedAt                  string `json:"updatedAt"`
 			Address                    string `json:"address"`
 			CosmosAccountAddress       string `json:"cosmosAccountAddress"`
 			CreationEvmBlockHeight     uint64 `json:"creationEvmBlockHeight"`
 			CreationEvmTransactionHash string `json:"creationEvmTransactionHash"`
+			CreatedAt                  string `json:"createdAt"`
 		} `json:"evmAccounts"`
 	} `json:"result"`
 }
@@ -940,8 +797,6 @@ func (api *API) GetEvmAccounts(opt *OptionalParams) ([]EvmAccount, error) {
 type resultGetEvmContract struct {
 	Ok     bool `json:"ok"`
 	Result struct {
-		CreatedAt        string      `json:"createdAt"`
-		UpdatedAt        string      `json:"updatedAt"`
 		Address          string      `json:"address"`
 		Status           string      `json:"status"`
 		Abi              interface{} `json:"abi"`
@@ -966,6 +821,7 @@ type resultGetEvmContract struct {
 		DeploymentEvmTransactionHash string `json:"deploymentEvmTransactionHash"`
 		DeploymentEvmReceiptId       uint64 `json:"deploymentEvmReceiptId"`
 		EvmAccountAddress            string `json:"evmAccountAddress"`
+		CreatedAt                    string `json:"createdAt"`
 	} `json:"result"`
 }
 
@@ -1000,19 +856,17 @@ func (api *API) GetEvmContract(address string) (*EvmContract, error) {
 type resultGetEvmTransaction struct {
 	Ok     bool `json:"ok"`
 	Result struct {
-		CreatedAt            string      `json:"createdAt"`
-		UpdatedAt            string      `json:"updatedAt"`
 		Hash                 string      `json:"hash"`
 		V                    string      `json:"v"`
 		R                    string      `json:"r"`
 		S                    string      `json:"s"`
 		Gas                  uint64      `json:"gas"`
-		Type                 uint64      `json:"type"`
+		Type                 string      `json:"type"`
 		Input                string      `json:"input"`
 		Nonce                uint64      `json:"nonce"`
 		Value                string      `json:"value"`
 		ChainId              uint64      `json:"chainId"`
-		GasPrice             uint64      `json:"gasPrice"`
+		GasPrice             string      `json:"gasPrice"`
 		AccessList           interface{} `json:"accessList"`
 		MaxFeePerGas         uint64      `json:"maxFeePerGas"`
 		MaxPriorityFeePerGas uint64      `json:"maxPriorityFeePerGas"`
@@ -1020,6 +874,7 @@ type resultGetEvmTransaction struct {
 		From                 string      `json:"from"`
 		To                   string      `json:"to"`
 		EvmBlockHeight       uint64      `json:"evmBlockHeight"`
+		CreatedAt            string      `json:"createdAt"`
 	} `json:"result"`
 }
 
@@ -1054,12 +909,11 @@ func (api *API) GetEvmTransaction(hash string) (*EvmTransaction, error) {
 type resultGetEvmAccount struct {
 	Ok     bool `json:"ok"`
 	Result struct {
-		CreatedAt                  string `json:"createdAt"`
-		UpdatedAt                  string `json:"updatedAt"`
 		Address                    string `json:"address"`
 		CosmosAccountAddress       string `json:"cosmosAccountAddress"`
 		CreationEvmBlockHeight     uint64 `json:"creationEvmBlockHeight"`
 		CreationEvmTransactionHash string `json:"creationEvmTransactionHash"`
+		CreatedAt                  string `json:"createdAt"`
 	} `json:"result"`
 }
 
@@ -1096,19 +950,17 @@ type resultGetEvmContractTransactions struct {
 	Result struct {
 		Count                   uint64 `json:"count"`
 		EvmContractTransactions []struct {
-			CreatedAt            string      `json:"createdAt"`
-			UpdatedAt            string      `json:"updatedAt"`
 			Hash                 string      `json:"hash"`
 			V                    string      `json:"v"`
 			R                    string      `json:"r"`
 			S                    string      `json:"s"`
 			Gas                  uint64      `json:"gas"`
-			Type                 uint64      `json:"type"`
+			Type                 string      `json:"type"`
 			Input                string      `json:"input"`
 			Nonce                uint64      `json:"nonce"`
 			Value                string      `json:"value"`
 			ChainId              uint64      `json:"chainId"`
-			GasPrice             uint64      `json:"gasPrice"`
+			GasPrice             string      `json:"gasPrice"`
 			AccessList           interface{} `json:"accessList"`
 			MaxFeePerGas         uint64      `json:"maxFeePerGas"`
 			MaxPriorityFeePerGas uint64      `json:"maxPriorityFeePerGas"`
@@ -1116,6 +968,7 @@ type resultGetEvmContractTransactions struct {
 			From                 string      `json:"from"`
 			To                   string      `json:"to"`
 			EvmBlockHeight       uint64      `json:"evmBlockHeight"`
+			CreatedAt            string      `json:"createdAt"`
 		} `json:"evmContractTransactions"`
 	} `json:"result"`
 }
@@ -1156,8 +1009,6 @@ type resultGetEvmContractEvents struct {
 	Result struct {
 		Count             uint64 `json:"count"`
 		EvmContractEvents []struct {
-			CreatedAt          string      `json:"createdAt"`
-			UpdatedAt          string      `json:"updatedAt"`
 			Id                 uint64      `json:"id"`
 			Root               string      `json:"root"`
 			Type               uint64      `json:"type"`
@@ -1170,9 +1021,8 @@ type resultGetEvmContractEvents struct {
 			EvmBlockHeight     uint64      `json:"evmBlockHeight"`
 			EvmTransactionHash string      `json:"evmTransactionHash"`
 			ContractAddress    string      `json:"contractAddress"`
+			CreatedAt          string      `json:"createdAt"`
 			EvmReceiptLogs     []struct {
-				CreatedAt          string      `json:"createdAt"`
-				UpdatedAt          string      `json:"updatedAt"`
 				Id                 uint64      `json:"id"`
 				Data               string      `json:"data"`
 				Address            string      `json:"address"`
@@ -1183,21 +1033,20 @@ type resultGetEvmContractEvents struct {
 				EvmTransactionHash string      `json:"evmTransactionHash"`
 				EvmReceiptId       uint64      `json:"evmReceiptId"`
 				Topics             []string    `json:"topics"`
+				CreatedAt          string      `json:"createdAt"`
 			} `json:"evmReceiptLogs"`
 			EvmTransaction struct {
-				CreatedAt            string      `json:"createdAt"`
-				UpdatedAt            string      `json:"updatedAt"`
 				Hash                 string      `json:"hash"`
 				V                    string      `json:"v"`
 				R                    string      `json:"r"`
 				S                    string      `json:"s"`
 				Gas                  uint64      `json:"gas"`
-				Type                 uint64      `json:"type"`
+				Type                 string      `json:"type"`
 				Input                string      `json:"input"`
 				Nonce                uint64      `json:"nonce"`
 				Value                string      `json:"value"`
 				ChainId              uint64      `json:"chainId"`
-				GasPrice             uint64      `json:"gasPrice"`
+				GasPrice             string      `json:"gasPrice"`
 				AccessList           interface{} `json:"accessList"`
 				MaxFeePerGas         uint64      `json:"maxFeePerGas"`
 				MaxPriorityFeePerGas uint64      `json:"maxPriorityFeePerGas"`
@@ -1205,6 +1054,7 @@ type resultGetEvmContractEvents struct {
 				From                 string      `json:"from"`
 				To                   string      `json:"to"`
 				EvmBlockHeight       uint64      `json:"evmBlockHeight"`
+				CreatedAt            string      `json:"createdAt"`
 			} `json:"evmTransaction"`
 		} `json:"evmContractEvents"`
 	} `json:"result"`
@@ -1255,35 +1105,16 @@ type resultGetEvmAccountBalances struct {
 				EvmAccountAddress string `json:"evmAccountAddress"`
 				Amount            string `json:"amount"`
 				EvmToken          struct {
+					Decimals           string `json:"decimals"`
 					Address            string `json:"address"`
-					Symbol             string `json:"symbol"`
 					Title              string `json:"title"`
-					Decimals           uint64 `json:"decimals"`
-					TotalSupply        uint64 `json:"totalSupply"`
+					Symbol             string `json:"symbol"`
 					EvmContractAddress string `json:"evmContractAddress"`
 					EvmTokenTypeName   string `json:"evmTokenTypeName"`
+					TotalSupply        string `json:"totalSupply"`
 					EvmContract        struct {
-						CreatedAt        string      `json:"createdAt"`
-						UpdatedAt        string      `json:"updatedAt"`
-						Address          string      `json:"address"`
-						Status           string      `json:"status"`
-						Abi              interface{} `json:"abi"`
-						ByteCode         string      `json:"byteCode"`
-						SourceCode       string      `json:"sourceCode"`
-						SecurityAudit    string      `json:"securityAudit"`
-						SwarmSource      string      `json:"swarmSource"`
-						VerificationData struct {
-							VerifiedAt           string `json:"verifiedAt"`
-							MatchType            string `json:"matchType"`
-							CompilerVersion      string `json:"compilerVersion"`
-							EvmVersion           string `json:"evmVersion"`
-							Optimization         bool   `json:"optimization"`
-							OptimizeRuns         uint64 `json:"optimizeRuns"`
-							ConstructorArguments string `json:"constructorArguments"`
-							Metadata             struct {
-								String string `json:"string"`
-							} `json:"metadata"`
-						} `json:"verificationData"`
+						Address                      string `json:"address"`
+						Status                       string `json:"status"`
 						DeploymentEvmAccountAddress  string `json:"deploymentEvmAccountAddress"`
 						DeploymentEvmBlockHeight     uint64 `json:"deploymentEvmBlockHeight"`
 						DeploymentEvmTransactionHash string `json:"deploymentEvmTransactionHash"`
@@ -1297,35 +1128,16 @@ type resultGetEvmAccountBalances struct {
 				EvmAccountAddress string `json:"evmAccountAddress"`
 				Amount            string `json:"amount"`
 				EvmToken          struct {
+					Decimals           string `json:"decimals"`
 					Address            string `json:"address"`
-					Symbol             string `json:"symbol"`
 					Title              string `json:"title"`
-					Decimals           uint64 `json:"decimals"`
-					TotalSupply        uint64 `json:"totalSupply"`
+					Symbol             string `json:"symbol"`
 					EvmContractAddress string `json:"evmContractAddress"`
 					EvmTokenTypeName   string `json:"evmTokenTypeName"`
+					TotalSupply        string `json:"totalSupply"`
 					EvmContract        struct {
-						CreatedAt        string      `json:"createdAt"`
-						UpdatedAt        string      `json:"updatedAt"`
-						Address          string      `json:"address"`
-						Status           string      `json:"status"`
-						Abi              interface{} `json:"abi"`
-						ByteCode         string      `json:"byteCode"`
-						SourceCode       string      `json:"sourceCode"`
-						SecurityAudit    string      `json:"securityAudit"`
-						SwarmSource      string      `json:"swarmSource"`
-						VerificationData struct {
-							VerifiedAt           string `json:"verifiedAt"`
-							MatchType            string `json:"matchType"`
-							CompilerVersion      string `json:"compilerVersion"`
-							EvmVersion           string `json:"evmVersion"`
-							Optimization         bool   `json:"optimization"`
-							OptimizeRuns         uint64 `json:"optimizeRuns"`
-							ConstructorArguments string `json:"constructorArguments"`
-							Metadata             struct {
-								String string `json:"string"`
-							} `json:"metadata"`
-						} `json:"verificationData"`
+						Address                      string `json:"address"`
+						Status                       string `json:"status"`
 						DeploymentEvmAccountAddress  string `json:"deploymentEvmAccountAddress"`
 						DeploymentEvmBlockHeight     uint64 `json:"deploymentEvmBlockHeight"`
 						DeploymentEvmTransactionHash string `json:"deploymentEvmTransactionHash"`
@@ -1339,35 +1151,16 @@ type resultGetEvmAccountBalances struct {
 				EvmAccountAddress string `json:"evmAccountAddress"`
 				Amount            string `json:"amount"`
 				EvmToken          struct {
+					Decimals           string `json:"decimals"`
 					Address            string `json:"address"`
-					Symbol             string `json:"symbol"`
 					Title              string `json:"title"`
-					Decimals           uint64 `json:"decimals"`
-					TotalSupply        uint64 `json:"totalSupply"`
+					Symbol             string `json:"symbol"`
 					EvmContractAddress string `json:"evmContractAddress"`
 					EvmTokenTypeName   string `json:"evmTokenTypeName"`
+					TotalSupply        string `json:"totalSupply"`
 					EvmContract        struct {
-						CreatedAt        string      `json:"createdAt"`
-						UpdatedAt        string      `json:"updatedAt"`
-						Address          string      `json:"address"`
-						Status           string      `json:"status"`
-						Abi              interface{} `json:"abi"`
-						ByteCode         string      `json:"byteCode"`
-						SourceCode       string      `json:"sourceCode"`
-						SecurityAudit    string      `json:"securityAudit"`
-						SwarmSource      string      `json:"swarmSource"`
-						VerificationData struct {
-							VerifiedAt           string `json:"verifiedAt"`
-							MatchType            string `json:"matchType"`
-							CompilerVersion      string `json:"compilerVersion"`
-							EvmVersion           string `json:"evmVersion"`
-							Optimization         bool   `json:"optimization"`
-							OptimizeRuns         uint64 `json:"optimizeRuns"`
-							ConstructorArguments string `json:"constructorArguments"`
-							Metadata             struct {
-								String string `json:"string"`
-							} `json:"metadata"`
-						} `json:"verificationData"`
+						Address                      string `json:"address"`
+						Status                       string `json:"status"`
 						DeploymentEvmAccountAddress  string `json:"deploymentEvmAccountAddress"`
 						DeploymentEvmBlockHeight     uint64 `json:"deploymentEvmBlockHeight"`
 						DeploymentEvmTransactionHash string `json:"deploymentEvmTransactionHash"`
@@ -1469,53 +1262,6 @@ func (api *API) GetValidatorsByKind(kind string) ([]Validator, error) {
 
 ///////////////
 
-type resultGetValidatorsCoins struct {
-	Ok     bool `json:"ok"`
-	Result []struct {
-		Count  uint64 `json:"count"`
-		Stakes struct {
-			Address string `json:"address"`
-			Coins   []struct {
-				CoinSymbol string `json:"coinSymbol"`
-				Amount     string `json:"amount"`
-				BaseAmount string `json:"baseAmount"`
-				Avatar     string `json:"avatar"`
-			} `json:"coins"`
-		} `json:"stakes"`
-	} `json:"result"`
-}
-
-// /validators/{address}/coins
-// Get coins grouped by delegator account address
-func (api *API) GetValidatorsCoins(address string, opt *OptionalParams) ([]ValidatorStakedCoin, error) {
-
-	var r = strings.NewReplacer(
-		"{address}", fmt.Sprintf("%s", address),
-	)
-	var link = r.Replace("/validators/{address}/coins")
-	if opt != nil {
-		link += opt.String()
-	}
-
-	// request
-	res, err := api.client.R().Get(link)
-	if err = processConnectionError(res, err); err != nil {
-		return nil, err
-	}
-	// json decode
-	respValue, respErr := resultGetValidatorsCoins{}, Error{}
-	err = universalJSONDecode(res.Body(), &respValue, &respErr, func() (bool, bool) {
-		return respValue.Ok, respErr.StatusCode != 0
-	})
-	if err != nil {
-		return nil, joinErrors(err, respErr)
-	}
-	// process result
-	return converterGetValidatorsCoins(respValue)
-}
-
-///////////////
-
 type resultGetValidator struct {
 	Ok     bool `json:"ok"`
 	Result struct {
@@ -1574,7 +1320,6 @@ type resultGetValidatorStakes struct {
 	Result struct {
 		Count  int64 `json:"count"`
 		Stakes []struct {
-			Id               uint64 `json:"id"`
 			Amount           string `json:"amount"`
 			CoinSymbol       string `json:"coinSymbol"`
 			BaseAmount       string `json:"baseAmount"`

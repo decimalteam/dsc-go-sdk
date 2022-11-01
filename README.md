@@ -168,10 +168,6 @@ If `opt *OptionalParams` is not nil, GetXXX gets part of data, specified by Limi
 List of known methods:
 
 - GetAddress(id string) (*AddressInfo, error)
-- GetAddressTxs(id string, opt *OptionalParams) ([]TxInfo, error)
-- GetAddressStakes(address string, opt *OptionalParams) ([]ValidatorStake, error)
-- GetAddressRewards(address string, opt *OptionalParams) ([]Reward, error)
-- GetAllNFT(opt *OptionalParams) ([]NFT, error)
 - GetNFTCollection(collection string) (interface{}, error)
 - GetNFTTransactions(collection string, id string, opt *OptionalParams) ([]TxInfo, error)
 - GetTxByHash(hash string) (*TxInfo, error)
@@ -191,7 +187,6 @@ List of known methods:
 - GetEvmContractEvents(address string, opt *OptionalParams) ([]EvmEvent, error)
 - GetEvmAccountBalances(address string, opt *OptionalParams) ([]EvmAccountBalance, error)
 - GetValidatorsByKind(kind string) ([]Validator, error)
-- GetValidatorsCoins(address string, opt *OptionalParams) ([]ValidatorStakedCoin, error)
 - GetValidator(address string) (*Validator, error)
 - GetValidatorStakes(address string, opt *OptionalParams) ([]ValidatorStake, error)
 - GetValidatorStakesNFT(address string) ([]ValidatorStakeNFT, error)

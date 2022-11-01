@@ -2,7 +2,6 @@ package api
 
 import (
 	"fmt"
-	"strconv"
 
 	"cosmossdk.io/math"
 )
@@ -60,8 +59,8 @@ func converterGetNFTCollection(resp resultGetNFTCollection) (interface{}, error)
 func converterGetTxByHash(resp resultGetTx) (*TxInfo, error) {
 	var res TxInfo
 	res.Block = resp.Result.BlockId
-	res.From = resp.Result.From
-	res.To = resp.Result.To
+	//res.From = resp.Result.From
+	//res.To = resp.Result.To
 	res.Hash = resp.Result.Hash
 	res.Status = resp.Result.Status
 	res.Code = resp.Result.Code
@@ -72,8 +71,8 @@ func converterGetTxs(resp resultGetTxs) ([]TxInfo, error) {
 	var res = make([]TxInfo, len(resp.Result.Txs))
 	for i, tx := range resp.Result.Txs {
 		res[i].Block = tx.BlockId
-		res[i].From = tx.From
-		res[i].To = tx.To
+		//res[i].From = tx.From
+		//res[i].To = tx.To
 		res[i].Hash = tx.Hash
 		res[i].Status = tx.Status
 		res[i].Code = tx.Code
@@ -81,6 +80,7 @@ func converterGetTxs(resp resultGetTxs) ([]TxInfo, error) {
 	return res, nil
 }
 
+/*
 func converterGetAddressTxs(resp resultGetAddressTxs) ([]TxInfo, error) {
 	var res = make([]TxInfo, len(resp.Result.Txs))
 	for i, tx := range resp.Result.Txs {
@@ -93,6 +93,7 @@ func converterGetAddressTxs(resp resultGetAddressTxs) ([]TxInfo, error) {
 	}
 	return res, nil
 }
+*/
 
 func converterGetEvmContracts(resp resultGetEvmContracts) ([]EvmContract, error) {
 	var res = make([]EvmContract, len(resp.Result.EvmContracts))
@@ -132,27 +133,28 @@ func converterGetEvmAccounts(resp resultGetEvmAccounts) ([]EvmAccount, error) {
 	return res, nil
 }
 
-func converterGetAllNFT(resp resultGetAllNFT) ([]NFT, error) {
-	var err error
-	var ok bool
-	var res = make([]NFT, len(resp.Result.Nfts))
-	for i, nft := range resp.Result.Nfts {
-		res[i].NftCollection = nft.NftCollection
-		res[i].NftId = nft.NftId
-		res[i].Quantity, err = strconv.ParseUint(nft.Quantity, 10, 64)
-		if err != nil {
-			return nil, err
+/*
+	func converterGetAllNFT(resp resultGetAllNFT) ([]NFT, error) {
+		var err error
+		var ok bool
+		var res = make([]NFT, len(resp.Result.Nfts))
+		for i, nft := range resp.Result.Nfts {
+			res[i].NftCollection = nft.NftCollection
+			res[i].NftId = nft.NftId
+			res[i].Quantity, err = strconv.ParseUint(nft.Quantity, 10, 64)
+			if err != nil {
+				return nil, err
+			}
+			res[i].Reserve, ok = math.NewIntFromString(nft.Reserve)
+			if !ok {
+				return nil, fmt.Errorf("cannot convert reserve '%s' to math.Int", nft.Reserve)
+			}
+			res[i].Sender = nft.Sender
+			res[i].Recipient = nft.Recipient
 		}
-		res[i].Reserve, ok = math.NewIntFromString(nft.Reserve)
-		if !ok {
-			return nil, fmt.Errorf("cannot convert reserve '%s' to math.Int", nft.Reserve)
-		}
-		res[i].Sender = nft.Sender
-		res[i].Recipient = nft.Recipient
+		return res, nil
 	}
-	return res, nil
-}
-
+*/
 func converterGetValidatorsByKind(resp resultGetValidatorsByKind) ([]Validator, error) {
 	var res = make([]Validator, len(resp.Result.Validators))
 	for i, val := range resp.Result.Validators {
@@ -232,10 +234,10 @@ func converterGetBlockTransactions(resp resultGetBlockTransactions) ([]TxInfo, e
 	var res = make([]TxInfo, len(resp.Result.Txs))
 	for i, tx := range resp.Result.Txs {
 		res[i].Block = tx.BlockId
-		res[i].From = tx.From
+		//res[i].From = tx.From
 		res[i].Hash = tx.Hash
 		res[i].Status = tx.Status
-		res[i].To = tx.To
+		//res[i].To = tx.To
 		res[i].Type = tx.Type
 	}
 	return res, nil
@@ -260,29 +262,30 @@ func converterGetEvmContractTransactions(resp resultGetEvmContractTransactions) 
 	return res, nil
 }
 
-func converterGetValidatorsCoins(resp resultGetValidatorsCoins) ([]ValidatorStakedCoin, error) {
-	var res = make([]ValidatorStakedCoin, 0)
-	for _, result := range resp.Result {
-		for _, coin := range result.Stakes.Coins {
-			amount, ok := math.NewIntFromString(coin.Amount)
-			if !ok {
-				return nil, fmt.Errorf("cannot convert amount '%s' to math.Int", coin.Amount)
+/*
+	func converterGetValidatorsCoins(resp resultGetValidatorsCoins) ([]ValidatorStakedCoin, error) {
+		var res = make([]ValidatorStakedCoin, 0)
+		for _, result := range resp.Result {
+			for _, coin := range result.Stakes.Coins {
+				amount, ok := math.NewIntFromString(coin.Amount)
+				if !ok {
+					return nil, fmt.Errorf("cannot convert amount '%s' to math.Int", coin.Amount)
+				}
+				baseAmount, ok := math.NewIntFromString(coin.BaseAmount)
+				if !ok {
+					return nil, fmt.Errorf("cannot convert base amount '%s' to math.Int", coin.BaseAmount)
+				}
+				res = append(res, ValidatorStakedCoin{
+					Address:    result.Stakes.Address,
+					CoinSymbol: coin.CoinSymbol,
+					Amount:     amount,
+					BaseAmount: baseAmount,
+				})
 			}
-			baseAmount, ok := math.NewIntFromString(coin.BaseAmount)
-			if !ok {
-				return nil, fmt.Errorf("cannot convert base amount '%s' to math.Int", coin.BaseAmount)
-			}
-			res = append(res, ValidatorStakedCoin{
-				Address:    result.Stakes.Address,
-				CoinSymbol: coin.CoinSymbol,
-				Amount:     amount,
-				BaseAmount: baseAmount,
-			})
 		}
+		return res, nil
 	}
-	return res, nil
-}
-
+*/
 func converterGetEvmAccountBalances(resp resultGetEvmAccountBalances) ([]EvmAccountBalance, error) {
 	var res = make([]EvmAccountBalance, 0)
 	for _, balance := range resp.Result.EvmTokenAccountBalance {
@@ -337,6 +340,7 @@ func converterGetEvmContractEvents(resp resultGetEvmContractEvents) ([]EvmEvent,
 	return res, nil
 }
 
+/*
 func converterGetAddressStakes(resp resultGetAddressStakes) ([]ValidatorStake, error) {
 	var res = make([]ValidatorStake, len(resp.Result.Stakes))
 	for i, stake := range resp.Result.Stakes {
@@ -351,6 +355,7 @@ func converterGetAddressStakes(resp resultGetAddressStakes) ([]ValidatorStake, e
 	}
 	return res, nil
 }
+*/
 
 func converterGetBlocks(resp resultGetBlocks) ([]BlockInfo, error) {
 	var res = make([]BlockInfo, len(resp.Result.Blocks))
@@ -363,6 +368,7 @@ func converterGetBlocks(resp resultGetBlocks) ([]BlockInfo, error) {
 	return res, nil
 }
 
+/*
 func converterGetAddressRewards(resp resultGetAddressRewards) ([]Reward, error) {
 	var res = make([]Reward, len(resp.Result.Rewards))
 	for i, reward := range resp.Result.Rewards {
@@ -377,15 +383,16 @@ func converterGetAddressRewards(resp resultGetAddressRewards) ([]Reward, error) 
 	}
 	return res, nil
 }
+*/
 
 func converterGetNFTTransactions(resp resultGetNFTTransactions) ([]TxInfo, error) {
 	var res = make([]TxInfo, len(resp.Result.Txs))
 	for i, tx := range resp.Result.Txs {
 		res[i].Hash = tx.Hash
 		res[i].Block = tx.BlockId
-		res[i].From = tx.From
+		//res[i].From = tx.From
 		res[i].Status = tx.Status
-		res[i].To = tx.To
+		//res[i].To = tx.To
 		res[i].Type = tx.Type
 	}
 	return res, nil

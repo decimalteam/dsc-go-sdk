@@ -6,11 +6,11 @@ ENDPOINTS_METHODS = {
     # endpoint url : (golang method name, response type name, result type)
     ### address
     "/address/{id}": ("GetAddress", "resultGetAddress", "*AddressInfo"),
-    "/address/{id}/txs": ("GetAddressTxs", "resultGetAddressTxs", "[]TxInfo"),
-    "/address/{address}/stakes": ("GetAddressStakes", "resultGetAddressStakes", "[]ValidatorStake"),
-    "/address/{address}/rewards": ("GetAddressRewards", "resultGetAddressRewards", "[]Reward"),
+    #"/address/{id}/txs": ("GetAddressTxs", "resultGetAddressTxs", "[]TxInfo"),
+    #"/address/{address}/stakes": ("GetAddressStakes", "resultGetAddressStakes", "[]ValidatorStake"),
+    #"/address/{address}/rewards": ("GetAddressRewards", "resultGetAddressRewards", "[]Reward"),
     ### nft
-    "/nfts": ("GetAllNFT", "resultGetAllNFT", "[]NFT"),
+    #"/nfts": ("GetAllNFT", "resultGetAllNFT", "[]NFT"),
     "/nft/{collection}": ("GetNFTCollection", "resultGetNFTCollection", "interface{}"),
     "/nft/{collection}/{id}/txs": ("GetNFTTransactions", "resultGetNFTTransactions", "[]TxInfo"),
     ### tx info
@@ -37,7 +37,7 @@ ENDPOINTS_METHODS = {
     ### validators
     # kind = validator | candidate
     "/validators/{kind}": ("GetValidatorsByKind", "resultGetValidatorsByKind", "[]Validator"),
-    "/validators/{address}/coins": ("GetValidatorsCoins", "resultGetValidatorsCoins", "[]ValidatorStakedCoin"),
+    #"/validators/{address}/coins": ("GetValidatorsCoins", "resultGetValidatorsCoins", "[]ValidatorStakedCoin"),
     "/validator/{address}": ("GetValidator", "resultGetValidator", "*Validator"),
     "/validator/{address}/stakes": ("GetValidatorStakes", "resultGetValidatorStakes", "[]ValidatorStake"),
     "/validator/{address}/stakes/nfts": ("GetValidatorStakesNFT", "resultGetValidatorStakesNFT", "[]ValidatorStakeNFT"),

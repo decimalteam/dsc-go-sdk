@@ -32,21 +32,21 @@ type AddressInfo struct {
 }
 
 type BlockInfo struct {
-	Height          int64
-	Reward          int64
-	TxsCount        int64
+	Height          uint64
+	Reward          uint64
+	TxsCount        uint64
 	EvmTxsCount     int64
-	ValidatorsCount int64
+	ValidatorsCount uint64
 }
 
 type TxInfo struct {
 	Hash   string
 	Status string
 	Type   string
-	Block  int64
+	Block  uint64
 	From   string
 	To     string
-	Code   int64
+	Code   uint64
 }
 
 // EVM
@@ -65,12 +65,12 @@ type EvmContract struct {
 type EvmTransaction struct {
 	Hash           string
 	Gas            uint64
-	Type           uint64
+	Type           string
 	Input          string
 	Nonce          uint64
 	Value          string
 	ChainId        uint64
-	GasPrice       uint64
+	GasPrice       string
 	MaxFeePerGas   uint64
 	From           string
 	To             string
