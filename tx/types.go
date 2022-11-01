@@ -4,6 +4,7 @@ import (
 	coinTypes "bitbucket.org/decimalteam/go-smart-node/x/coin/types"
 	multisigTypes "bitbucket.org/decimalteam/go-smart-node/x/multisig/types"
 	nftTypes "bitbucket.org/decimalteam/go-smart-node/x/nft/types"
+	swapTypes "bitbucket.org/decimalteam/go-smart-node/x/swap/types"
 )
 
 type (
@@ -14,20 +15,23 @@ type (
 	MsgSellCoin      = coinTypes.MsgSellCoin
 	MsgSellAllCoin   = coinTypes.MsgSellAllCoin
 	MsgSendCoin      = coinTypes.MsgSendCoin
-	//MsgBurnCoin      = coinTypes.MsgBurnCoin
-	MsgRedeemCheck = coinTypes.MsgRedeemCheck
+	MsgBurnCoin      = coinTypes.MsgBurnCoin
+	MsgRedeemCheck   = coinTypes.MsgRedeemCheck
 
-	OneSend = coinTypes.Send
+	MultiSendEntry = coinTypes.MultiSendEntry
 
-	MsgMintNFT          = nftTypes.MsgMintNFT
-	MsgBurnNFT          = nftTypes.MsgBurnNFT
-	MsgUpdateReserveNFT = nftTypes.MsgUpdateReserveNFT
-	MsgTransferNFT      = nftTypes.MsgTransferNFT
-	MsgEditNFTMetadata  = nftTypes.MsgEditNFTMetadata
+	MsgMintToken     = nftTypes.MsgMintToken
+	MsgBurnToken     = nftTypes.MsgBurnToken
+	MsgUpdateReserve = nftTypes.MsgUpdateReserve
+	MsgSendToken     = nftTypes.MsgSendToken
+	MsgUpdateToken   = nftTypes.MsgUpdateToken
 
 	MsgCreateWallet      = multisigTypes.MsgCreateWallet
 	MsgCreateTransaction = multisigTypes.MsgCreateTransaction
 	MsgSignTransaction   = multisigTypes.MsgSignTransaction
+
+	MsgInitializeSwap = swapTypes.MsgInitializeSwap
+	MsgRedeemSwap     = swapTypes.MsgRedeemSwap
 )
 
 var (
@@ -38,16 +42,19 @@ var (
 	NewMsgSellCoin      = coinTypes.NewMsgSellCoin
 	NewMsgSellAllCoin   = coinTypes.NewMsgSellAllCoin
 	NewMsgSendCoin      = coinTypes.NewMsgSendCoin
-	//NewMsgBurnCoin      = coinTypes.NewMsgBurnCoin
-	NewMsgRedeemCheck = coinTypes.NewMsgRedeemCheck
+	NewMsgBurnCoin      = coinTypes.NewMsgBurnCoin
+	NewMsgRedeemCheck   = coinTypes.NewMsgRedeemCheck
 
-	NewMsgMintNFT          = nftTypes.NewMsgMintNFT
-	NewMsgBurnNFT          = nftTypes.NewMsgBurnNFT
-	NewMsgUpdateReserveNFT = nftTypes.NewMsgUpdateReserveNFT
-	NewMsgTransferNFT      = nftTypes.NewMsgTransferNFT
-	NewMsgEditNFTMetadata  = nftTypes.NewMsgEditNFTMetadata
+	NewMsgMintToken     = nftTypes.NewMsgMintToken
+	NewMsgBurnToken     = nftTypes.NewMsgBurnToken
+	NewMsgUpdateReserve = nftTypes.NewMsgUpdateReserve
+	NewMsgSendToken     = nftTypes.NewMsgSendToken
+	NewMsgUpdateToken   = nftTypes.NewMsgUpdateToken
 
 	NewMsgCreateWallet      = multisigTypes.NewMsgCreateWallet
 	NewMsgCreateTransaction = multisigTypes.NewMsgCreateTransaction
 	NewMsgSignTransaction   = multisigTypes.NewMsgSignTransaction
+
+	NewMsgInitializeSwap = swapTypes.NewMsgInitializeSwap
+	NewMsgRedeemSwap     = swapTypes.NewMsgRedeemSwap
 )

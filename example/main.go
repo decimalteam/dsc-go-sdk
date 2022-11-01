@@ -212,8 +212,8 @@ func sendCoin(api *dscApi.API, senderWallet *dscWallet.Account, receiver string)
 
 	msg := dscTx.NewMsgSendCoin(
 		senderWallet.SdkAddress(),
-		sdk.NewCoin("del", dscApi.EtherToWei(math.NewInt(1))),
 		receiverAddress,
+		sdk.NewCoin("del", dscApi.EtherToWei(math.NewInt(1))),
 	)
 
 	// 3. build transaction
