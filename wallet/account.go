@@ -1,6 +1,8 @@
 package wallet
 
 import (
+	"crypto/ecdsa"
+
 	"github.com/cosmos/cosmos-sdk/types/bech32"
 
 	cryptoTypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -106,6 +108,11 @@ func (acc *Account) Sequence() uint64 {
 // Sequence returns accounts's sequence (last used nonce).
 func (acc *Account) PubKey() cryptoTypes.PubKey {
 	return acc.publicKeyTM
+}
+
+func (acc *Account) ECDSA() *ecdsa.PrivateKey {
+	pk, _ := acc.privateKeyTM.ToECDSA()
+	return pk
 }
 
 // Sign data by private key and returns signature
