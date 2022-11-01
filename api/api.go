@@ -96,6 +96,28 @@ func (api *API) GetAccountNumberAndSequence(address string) (uint64, uint64, err
 	return accNumber, seq, nil
 }
 
+// Address requests full information about specified address
+func (api *API) GetAccountBalance(address string) (sdk.Coins, error) {
+	type respDirectAddress struct {
+		Balances sdk.Coins `json:"balances"`
+	}
+	// request
+	res, err := api.rest.R().Get(fmt.Sprintf("/cosmos/bank/v1beta1/balances/%s", address))
+	if err = processConnectionError(res, err); err != nil {
+		return sdk.NewCoins(), err
+	}
+	// json decode
+	respValue, respErr := respDirectAddress{}, Error{}
+	err = universalJSONDecode(res.Body(), &respValue, &respErr, func() (bool, bool) {
+		return true, respErr.StatusCode != 0
+	})
+	if err != nil {
+		return sdk.NewCoins(), joinErrors(err, respErr)
+	}
+	// process result
+	return respValue.Balances, nil
+}
+
 // BaseCoin() returns base coin symbol from genesis. Need for correct transaction building
 func (api *API) BaseCoin() string {
 	return api.baseCoinSymbol
