@@ -22,12 +22,12 @@ type API struct {
 }
 
 // NewAPI creates Decimal API instance.
-func NewAPI(apiURL, rpcURL, restURL string) *API {
+func NewAPI(apiURL, node string) *API {
 	initConfig()
 	return &API{
 		client: resty.New().SetHostURL(apiURL).SetTimeout(time.Minute),
-		rpc:    resty.New().SetHostURL(rpcURL).SetTimeout(time.Minute),
-		rest:   resty.New().SetHostURL(restURL).SetTimeout(time.Minute),
+		rpc:    resty.New().SetHostURL(node + "rpc/").SetTimeout(time.Minute),
+		rest:   resty.New().SetHostURL(node + "rest/").SetTimeout(time.Minute),
 	}
 }
 
