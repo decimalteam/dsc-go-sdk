@@ -17,8 +17,8 @@ type API struct {
 	rest   *resty.Client
 
 	// Parameters
-	chainID        string
-	baseCoinSymbol string
+	chainID   string
+	baseDenom string
 }
 
 // NewAPI creates Decimal API instance.
@@ -39,7 +39,7 @@ func (api *API) GetParameters() error {
 				AppState struct {
 					Coin struct {
 						Params struct {
-							BaseSymbol string `json:"base_symbol"`
+							BaseDenom string `json:"base_denom"`
 						} `json:"params"`
 					} `json:"coin"`
 				} `json:"app_state"`
@@ -61,7 +61,7 @@ func (api *API) GetParameters() error {
 	}
 	// process results
 	api.chainID = respValue.Result.Genesis.ChainID
-	api.baseCoinSymbol = respValue.Result.Genesis.AppState.Coin.Params.BaseSymbol
+	api.baseDenom = respValue.Result.Genesis.AppState.Coin.Params.BaseDenom
 	return nil
 }
 
@@ -120,7 +120,7 @@ func (api *API) GetAccountBalance(address string) (sdk.Coins, error) {
 
 // BaseCoin() returns base coin symbol from genesis. Need for correct transaction building
 func (api *API) BaseCoin() string {
-	return api.baseCoinSymbol
+	return api.baseDenom
 }
 
 // ChainID() returns blockchain network chain id
