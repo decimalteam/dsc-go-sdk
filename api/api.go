@@ -13,8 +13,6 @@ import (
 // API is a struct implementing DSC API iteraction.
 type API struct {
 	client *resty.Client
-	rpc    *resty.Client
-	rest   *resty.Client
 
 	// Parameters
 	chainID   string
@@ -22,12 +20,10 @@ type API struct {
 }
 
 // NewAPI creates Decimal API instance.
-func NewAPI(apiURL, node string) *API {
+func NewAPI(apiURL string) *API {
 	initConfig()
 	return &API{
-		client: resty.New().SetHostURL(apiURL).SetTimeout(time.Minute),
-		rpc:    resty.New().SetHostURL(node + "rpc/").SetTimeout(time.Minute),
-		rest:   resty.New().SetHostURL(node + "rest/").SetTimeout(time.Minute),
+		client: resty.New().SetBaseURL(apiURL).SetTimeout(time.Minute),
 	}
 }
 
@@ -47,7 +43,7 @@ func (api *API) GetParameters() error {
 		} `json:"result"`
 	}
 	// request
-	res, err := api.rpc.R().Get("/genesis")
+	res, err := api.client.R().Get("/rpc/genesis")
 	if err = processConnectionError(res, err); err != nil {
 		return err
 	}
@@ -76,7 +72,7 @@ func (api *API) GetAccountNumberAndSequence(address string) (uint64, uint64, err
 		} `json:"account"`
 	}
 	// request
-	res, err := api.rest.R().Get(fmt.Sprintf("/cosmos/auth/v1beta1/accounts/%s", address))
+	res, err := api.client.R().Get(fmt.Sprintf("/rpc/auth/accounts/%s", address))
 	if err = processConnectionError(res, err); err != nil {
 		return 0, 0, err
 	}
@@ -98,24 +94,35 @@ func (api *API) GetAccountNumberAndSequence(address string) (uint64, uint64, err
 
 // Address requests full information about specified address
 func (api *API) GetAccountBalance(address string) (sdk.Coins, error) {
-	type respDirectAddress struct {
-		Balances sdk.Coins `json:"balances"`
+	type respBalance struct {
+		Ok     bool `json:"ok"`
+		Result map[string]struct {
+			Amount string `json:"amount"`
+		} `json:"result"`
 	}
 	// request
-	res, err := api.rest.R().Get(fmt.Sprintf("/cosmos/bank/v1beta1/balances/%s", address))
+	res, err := api.client.R().Get(fmt.Sprintf("/address/%s/balances", address))
 	if err = processConnectionError(res, err); err != nil {
 		return sdk.NewCoins(), err
 	}
 	// json decode
-	respValue, respErr := respDirectAddress{}, Error{}
+	respValue, respErr := respBalance{}, Error{}
 	err = universalJSONDecode(res.Body(), &respValue, &respErr, func() (bool, bool) {
-		return true, respErr.StatusCode != 0
+		return respValue.Ok, respErr.StatusCode != 0
 	})
 	if err != nil {
 		return sdk.NewCoins(), joinErrors(err, respErr)
 	}
 	// process result
-	return respValue.Balances, nil
+	result := sdk.NewCoins()
+	for denom, v := range respValue.Result {
+		amount, ok := sdk.NewIntFromString(v.Amount)
+		if !ok {
+			return sdk.NewCoins(), fmt.Errorf("can't convert amount to int")
+		}
+		result = result.Add(sdk.NewCoin(denom, amount))
+	}
+	return result, nil
 }
 
 // BaseCoin() returns base coin symbol from genesis. Need for correct transaction building
@@ -148,7 +155,10 @@ func (api *API) BroadcastTxSync(data []byte) (*TxResponse, error) {
 		} `json:"result"`
 	}
 	// request
-	res, err := api.rpc.R().Get("/broadcast_tx_sync?tx=0x" + hex.EncodeToString(data))
+	res, err := api.client.R().SetHeader("Content-Type", "application/json").
+		SetBody(map[string]string{
+			"hexTx": hex.EncodeToString(data),
+		}).Post("/rpc/txs")
 	if err = processConnectionError(res, err); err != nil {
 		return nil, err
 	}
@@ -169,6 +179,39 @@ func (api *API) BroadcastTxSync(data []byte) (*TxResponse, error) {
 	}, nil
 }
 
+func (api *API) CalculateFee(data []byte, denom string) (sdk.Coin, error) {
+	type calculateResponse struct {
+		Ok     bool `json:"ok"`
+		Result struct {
+			Commission string `json:"commission"`
+		} `json:"result"`
+	}
+	// request
+	res, err := api.client.R().SetHeader("Content-Type", "application/json").
+		SetBody(map[string]string{
+			"tx_bytes": hex.EncodeToString(data),
+			"denom":    denom,
+		}).Post("/tx/estimate")
+	if err = processConnectionError(res, err); err != nil {
+		return sdk.Coin{}, err
+	}
+	// json decode
+	respValue := calculateResponse{}
+	err = universalJSONDecode(res.Body(), &respValue, nil, func() (bool, bool) {
+		return respValue.Ok, false
+	})
+	if err != nil {
+		return sdk.Coin{}, err
+	}
+	// process result
+	amount, ok := sdk.NewIntFromString(respValue.Result.Commission)
+	if !ok {
+		return sdk.Coin{}, fmt.Errorf("can't convert commission to int")
+	}
+	return sdk.NewCoin(denom, amount), nil
+}
+
+/*
 func (api *API) BroadcastTxCommit(data []byte) (*TxResponse, error) {
 	type directSyncResponse struct {
 		Result struct {
@@ -214,6 +257,7 @@ func (api *API) BroadcastTxCommit(data []byte) (*TxResponse, error) {
 		Codespace: respValue.Result.DeliverTx.Codespace,
 	}, nil
 }
+*/
 
 // Init global cosmos sdk config
 // Do not seal config or rework to use sealed config
