@@ -12,7 +12,7 @@ import (
 	ethermint "github.com/evmos/ethermint/types"
 )
 
-const Bech32Prefix = "dx"
+const Bech32Prefix = "d0"
 
 // Account contains private key of the account that allows to sign transactions to broadcast to the blockchain.
 type Account struct {

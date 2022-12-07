@@ -475,8 +475,34 @@ func (api *API) VerificationGetCoins(opt *OptionalParams) ([]string, error) {
 ///////////////
 
 type resultGetCoin struct {
-	Ok     bool        `json:"ok"`
-	Result interface{} `json:"result"`
+	Ok     bool `json:"ok"`
+	Result struct {
+		Intervals []string `json:"intervals"`
+		Coin      struct {
+			Avatar        string `json:"avatar"`
+			Symbol        string `json:"symbol"`
+			Title         string `json:"title"`
+			Creator       string `json:"creator"`
+			LimitVolume   string `json:"limitVolume"`
+			Volume        string `json:"volume"`
+			Reserve       string `json:"reserve"`
+			Delegated     string `json:"delegated"`
+			Locked        string `json:"locked"`
+			Crr           uint64 `json:"crr"`
+			Created       string `json:"created"`
+			Token         string `json:"token"`
+			Price         string `json:"price"`
+			PriceUSD      string `json:"priceUSD"`
+			PriceDelegate string `json:"priceDelegate"`
+		} `json:"coin"`
+		Volume24    string `json:"volume24"`
+		Delegated24 string `json:"delegated24"`
+		Initial     struct {
+			Volume  string `json:"volume"`
+			Reserve string `json:"reserve"`
+			Price   string `json:"price"`
+		} `json:"initial"`
+	} `json:"result"`
 }
 
 // /coin/{coin}
@@ -1408,12 +1434,15 @@ type resultGetValidatorsByKind struct {
 
 // /validators/{kind}
 // Default route
-func (api *API) VerificationGetValidatorsByKind(kind string) ([]string, error) {
+func (api *API) VerificationGetValidatorsByKind(kind string, opt *OptionalParams) ([]string, error) {
 
 	var r = strings.NewReplacer(
 		"{kind}", fmt.Sprintf("%s", kind),
 	)
 	var link = r.Replace("/validators/{kind}")
+	if opt != nil {
+		link += opt.String()
+	}
 
 	// request
 	res, err := api.client.R().Get(link)
@@ -1586,12 +1615,15 @@ type resultGetValidatorStakesNFT struct {
 
 // /validator/{address}/stakes/nfts
 // Get validator's NFTs stake
-func (api *API) VerificationGetValidatorStakesNFT(address string) ([]string, error) {
+func (api *API) VerificationGetValidatorStakesNFT(address string, opt *OptionalParams) ([]string, error) {
 
 	var r = strings.NewReplacer(
 		"{address}", fmt.Sprintf("%s", address),
 	)
 	var link = r.Replace("/validator/{address}/stakes/nfts")
+	if opt != nil {
+		link += opt.String()
+	}
 
 	// request
 	res, err := api.client.R().Get(link)

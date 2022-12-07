@@ -26,5 +26,5 @@ func TestComparation(t *testing.T) {
 		[]byte(`{"a": 1, "b": 2}`),
 		[]byte(`{"a": 1, "c": 3}`),
 	)
-	require.Equal(t, 0, len(result), result)
+	require.Equal(t, 2, len(result), result)
 }

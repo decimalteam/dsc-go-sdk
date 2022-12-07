@@ -263,5 +263,5 @@ func (api *API) BroadcastTxCommit(data []byte) (*TxResponse, error) {
 // Do not seal config or rework to use sealed config
 func initConfig() {
 	cfg := sdk.GetConfig()
-	cfg.SetBech32PrefixForAccount("dx", "dxpub")
+	cfg.SetBech32PrefixForAccount("d0", "d0pub")
 }
