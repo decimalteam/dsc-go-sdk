@@ -4,7 +4,10 @@ For detailed explanation on how things work, checkout the:
 
 - [Decimal SDK docs](https://help.decimalchain.com/api-sdk/).
 - [Decimal Console site](https://console.decimalchain.com/).
-- [Swagger documentation](https://devnet-dec2-explorer-api.decimalchain.com/api/documentation).
+- [Swagger documentation](https://mainnet-gate.decimalchain.com/api/documentation).
+
+- [Testnet Decimal Console site](https://testnet.console.decimalchain.com/).
+- [Testnet Swagger documentation](https://testnet-gate.decimalchain.com/api/documentation).
 
 # Install
 ```
@@ -97,7 +100,7 @@ func main() {
 
     // 2. Create API instance for account binding
     // A) gateway API
-    // endpoints may be "https://devnet-gate.decimalchain.com/api", "https://testnet-gate.decimalchain.com/api"
+    // endpoints may be "https://testnet-gate.decimalchain.com/api"
     // "https://mainnet-gate.decimalchain.com/api"
     api := dscApi.NewAPI("https://testnet-gate.decimalchain.com/api")
     // B) direct node connection API
@@ -143,12 +146,13 @@ func main() {
 	bz, err := tx.BytesToSend()
 	// ...error handling
 
+    // use one of methods:
 	// 1) BroadcastTxSync: send transaction in SYNC mode and get transaction hash and
 	// possible error of transaction check
 	// You can check later transaction delivery by hash
-	// 2) BroadcastTxCommit (only for DirectAPI): same as BroadcastTxSync, but wait
-	// for delivery at end of block (about 5 seconds)    
     result, err := api.BroadcastTxSync(bz)
+	// 2) BroadcastTxCommit (only for DirectAPI): same as BroadcastTxSync, but wait
+	// for delivery at end of block (about 5 seconds); return final result of transaction
     result, err := api.BroadcastTxCommit(bz)
 
     // only gate API
