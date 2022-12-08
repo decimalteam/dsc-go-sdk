@@ -42,7 +42,7 @@ func main() {
 	if err != nil {
 		// Error handling
 	}
-    // Output: dx1...
+    // Output: d01...
     fmt.Println(account.Address())
 
     ...
@@ -96,8 +96,14 @@ func main() {
     account := ...
 
     // 2. Create API instance for account binding
-    // TODO: constructor may change
-    api := dscApi.NewAPI(endpoints...)
+    // A) gateway API
+    // endpoints may be "https://devnet-gate.decimalchain.com/api", "https://testnet-gate.decimalchain.com/api"
+    // "https://mainnet-gate.decimalchain.com/api"
+    api := dscApi.NewAPI("https://testnet-gate.decimalchain.com/api")
+    // B) direct node connection API
+    api := dscApi.NewDirectAPI("localhost")
+    api := dscApi.NewDirectAPIWithPorts("localhost", 26657, 1317)
+
     err := api.GetParameters()
     // ...error handling
     // now api has valid results for api.ChainID(), api.BaseCoin()
@@ -111,14 +117,14 @@ func main() {
     // For possible transaction messages see tx/types.go and DSC source
 	msg := dscTx.NewMsgSendCoin(
 		account.SdkAddress(),
-		sdk.NewCoin("del", dscApi.EtherToWei(math.NewInt(1))),
+		sdk.NewCoin(api.BaseCoin(), dscApi.EtherToWei(math.NewInt(1))),
 		receiverAddress,
 	)
     // or you can use message type directly
     msg := dscTx.MsgSendCoin{
         Sender: account.Address(),
         Receiver: receiver,
-        Coin: sdk.NewCoin("del", dscApi.EtherToWei(math.NewInt(1))),
+        Coin: sdk.NewCoin(api.BaseCoin(), dscApi.EtherToWei(math.NewInt(1))),
     }
 
 	tx, err := dscTx.BuildTransaction(
@@ -127,7 +133,7 @@ func main() {
 		"some tx memo",
 		// fee to pay for transaction
 		// if amount = 0, amount will be calculated and collected automaticaly by validator
-		sdk.NewCoin("del", sdk.NewInt(0)),
+		sdk.NewCoin(api.BaseCoin(), sdk.NewInt(0)),
 	)
     // ...error handling
 
@@ -140,12 +146,13 @@ func main() {
 	// 1) BroadcastTxSync: send transaction in SYNC mode and get transaction hash and
 	// possible error of transaction check
 	// You can check later transaction delivery by hash
-	// 2) BroadcastTxCommit: same as BroadcastTxSync, but WAIT
+	// 2) BroadcastTxCommit (only for DirectAPI): same as BroadcastTxSync, but wait
 	// for delivery at end of block (about 5 seconds)    
     result, err := api.BroadcastTxSync(bz)
     result, err := api.BroadcastTxCommit(bz)
 
-    // wait for block
+    // only gate API
+    // wait for block when using BroadcastTxSync
     // 6. Verify transaction delivery
     // NOTE: if transaction not in block already, you can get HTTP 404 error
     // If you want to be sure after every transaction, use BroadcastTxCommit
@@ -155,7 +162,7 @@ func main() {
 }
 ```
 
-## II. Views
+## II. Views (only gateway API)
 
 To get some information about blocks, transactions, accounts, etc use GetXXX methods.
 

@@ -73,6 +73,15 @@ func (e TxError) Error() string {
 var ErrIsRPCError = errors.New("rpc error")
 var ErrMissing = errors.New("universal JSON decode missing logic")
 
+type RestError struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}
+
+func (res RestError) Error() string {
+	return fmt.Sprintf("code: %d, message: %s", res.Code, res.Message)
+}
+
 ////////////////////////////////////////////////////////////////
 // Function to decrease boilerplate handling
 ////////////////////////////////////////////////////////////////

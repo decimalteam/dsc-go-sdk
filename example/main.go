@@ -11,33 +11,16 @@ import (
 	dscSwagger "bitbucket.org/decimalteam/dsc-go-sdk/swagger"
 	dscTx "bitbucket.org/decimalteam/dsc-go-sdk/tx"
 	dscWallet "bitbucket.org/decimalteam/dsc-go-sdk/wallet"
+	"bitbucket.org/decimalteam/go-smart-node/utils/helpers"
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func main() {
-	verifyEndpoints()
+	//verifyEndpoints()
 
-	api := dscApi.NewAPI(
-		"https://devnet-explorer-api.decimalchain.com/api/",
-		"https://devnet-val.decimalchain.com/rpc/",
-		"https://devnet-val.decimalchain.com/rest/",
-	)
-
-	err := api.GetParameters()
-	if err != nil {
-		fmt.Printf("GetParameters() error: %v\n", err)
-		return
-	}
-
-	/*
-		we, err := dscApi.CreateTxSubscription("wss://devnet-dec2-explorer-api.decimalchain.com/api")
-		if err != nil {
-			fmt.Printf("CreateTxSubscription() error: %v\n", err)
-			return
-		}
-		go we.ReadCycle()
-	*/
+	checkGateAPI()
+	checkDirectAPI()
 
 	//printBlockchainInfo(api)
 
@@ -46,16 +29,82 @@ func main() {
 
 }
 
+func checkGateAPI() {
+	fmt.Printf("---CHECK GATE API---\n\n")
+
+	api := dscApi.NewAPI(
+		"https://testnet-gate.decimalchain.com/api",
+	)
+
+	err := api.GetParameters()
+	if err != nil {
+		fmt.Printf("GetParameters() error: %v\n", err)
+		return
+	}
+
+	fmt.Printf("chain id=%s\n", api.ChainID())
+
+	w1, _ := dscWallet.NewAccountFromMnemonicWords("plug tissue today frown increase race brown sail post march trick coconut laptop churn call child question match also spend play credit already travel", "")
+	w2, _ := dscWallet.NewAccountFromMnemonicWords("layer pass tide basic raccoon olive trust satoshi coil harbor script shrimp health gadget few armed rival spread release welcome long dust almost banana", "")
+	an, seq, _ := api.GetAccountNumberAndSequence(w1.Address())
+	fmt.Printf("an=%d, seq=%d\n", an, seq)
+	w1 = w1.WithAccountNumber(an).WithSequence(seq).WithChainID(api.ChainID())
+	msg := dscTx.NewMsgSendCoin(w1.SdkAddress(), w2.SdkAddress(), sdk.NewCoin("del", helpers.EtherToWei(sdk.NewInt(1))))
+	tx, _ := dscTx.BuildTransaction(w1, []sdk.Msg{msg}, "hello", sdk.NewCoin("del", sdk.ZeroInt()))
+	tx.SignTransaction(w1)
+	bz, _ := tx.BytesToSend()
+	result, err := api.CalculateFee(bz, api.BaseCoin())
+	fmt.Printf("result = %s, err = %v\n", result, err)
+}
+
+func checkDirectAPI() {
+	fmt.Printf("---CHECK DIRECT API---\n\n")
+
+	api := dscApi.NewDirectAPI(
+		"127.0.0.1",
+	)
+
+	err := api.GetParameters()
+	if err != nil {
+		fmt.Printf("GetParameters() error: %v\n", err)
+		return
+	}
+
+	fmt.Printf("chain id=%s\n", api.ChainID())
+
+	w1, _ := dscWallet.NewAccountFromMnemonicWords("plug tissue today frown increase race brown sail post march trick coconut laptop churn call child question match also spend play credit already travel", "")
+	w2, _ := dscWallet.NewAccountFromMnemonicWords("layer pass tide basic raccoon olive trust satoshi coil harbor script shrimp health gadget few armed rival spread release welcome long dust almost banana", "")
+	an, seq, _ := api.GetAccountNumberAndSequence(w1.Address())
+	fmt.Printf("an=%d, seq=%d\n", an, seq)
+	w1 = w1.WithAccountNumber(an).WithSequence(seq).WithChainID(api.ChainID())
+	msg := dscTx.NewMsgSendCoin(w1.SdkAddress(), w2.SdkAddress(), sdk.NewCoin(api.BaseCoin(), helpers.EtherToWei(sdk.NewInt(1))))
+	tx, _ := dscTx.BuildTransaction(w1, []sdk.Msg{msg}, "hello", sdk.NewCoin(api.BaseCoin(), sdk.ZeroInt()))
+	tx.SignTransaction(w1)
+	bz, _ := tx.BytesToSend()
+	result, err := api.CalculateFee(bz, api.BaseCoin())
+	fmt.Printf("result = %s, err = %v\n", result, err)
+
+	resp, err := api.BroadcastTxCommit(bz)
+	fmt.Printf("result = %v, err = %v\n", resp, err)
+
+	an, seq, _ = api.GetAccountNumberAndSequence(w1.Address())
+	w1 = w1.WithAccountNumber(an).WithSequence(seq).WithChainID(api.ChainID())
+	msg = dscTx.NewMsgSendCoin(w1.SdkAddress(), w2.SdkAddress(), sdk.NewCoin(api.BaseCoin(), helpers.EtherToWei(sdk.NewInt(1))))
+	tx, _ = dscTx.BuildTransaction(w1, []sdk.Msg{msg}, "hello", sdk.NewCoin(api.BaseCoin(), sdk.ZeroInt()))
+	tx.SignTransaction(w1)
+	bz, _ = tx.BytesToSend()
+	resp, err = api.BroadcastTxSync(bz)
+	fmt.Printf("result = %v, err = %v\n", resp, err)
+}
+
 func verifyEndpoints() {
 	const address = "dx1fatzsagt96pfglxlq245th252mv3neckvkmf68"
 
 	var res []string
 	var err error
-	apiVerificator := dscSwagger.NewAPI("https://devnet-explorer-api.decimalchain.com/api/")
+	apiVerificator := dscSwagger.NewAPI("https://devnet-gate.decimalchain.com/api/")
 	api := dscApi.NewAPI(
-		"https://devnet-explorer-api.decimalchain.com/api/",
-		"https://devnet-val.decimalchain.com/rpc/",
-		"https://devnet-val.decimalchain.com/rest/",
+		"https://devnet-gate.decimalchain.com/api/",
 	)
 
 	res, err = apiVerificator.VerificationGetAddress(address)
@@ -143,13 +192,13 @@ func verifyEndpoints() {
 	res, err = apiVerificator.VerificationGetEvmAccountBalances("", &dscSwagger.OptionalParams{Limit: 1})
 	fmt.Printf("VerificationGetEvmAccountBalances: err = %v, result = %s\n", err, formatAsJSON(res))
 
-	res, err = apiVerificator.VerificationGetValidatorsByKind("validator")
+	res, err = apiVerificator.VerificationGetValidatorsByKind("validator", nil)
 	fmt.Printf("VerificationGetValidatorsByKind: err = %v, result = %s\n", err, formatAsJSON(res))
 
 	// res, err = apiVerificator.VerificationGetValidatorsCoins("del", &dscSwagger.OptionalParams{Limit: 1})
 	// fmt.Printf("VerificationGetValidatorsCoins: err = %v, result = %s\n", err, formatAsJSON(res))
 
-	vals, err := api.GetValidatorsByKind("validator")
+	vals, err := api.GetValidatorsByKind("validator", nil)
 	if err == nil && len(vals) > 0 {
 		res, err = apiVerificator.VerificationGetValidator(vals[0].Address)
 		fmt.Printf("VerificationGetValidator: err = %v, result = %s\n", err, formatAsJSON(res))
@@ -372,7 +421,7 @@ func printEvmTransactions(api *dscApi.API) {
 }
 
 func printGetValidatorsByKind(api *dscApi.API) {
-	validators, err := api.GetValidatorsByKind("validator")
+	validators, err := api.GetValidatorsByKind("validator", nil)
 	if err != nil {
 		fmt.Printf("GetValidatorsByKind() error: %v\n", err)
 	} else {
