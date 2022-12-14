@@ -5,6 +5,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/types/bech32"
 
+	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptoTypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
@@ -49,7 +50,11 @@ func NewAccountFromMnemonicWords(words string, password string) (*Account, error
 	if err != nil {
 		return nil, err
 	}
-
+	var oldPK = secp256k1.PubKey{Key: result.publicKeyTM.Bytes()}
+	result.legacyAddress, err = bech32.ConvertAndEncode("dx", oldPK.Address())
+	if err != nil {
+		return nil, err
+	}
 	return &result, nil
 }
 

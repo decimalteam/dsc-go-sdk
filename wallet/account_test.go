@@ -8,34 +8,39 @@ import (
 
 func TestKnownAccount(t *testing.T) {
 	var testData = []struct {
-		mnemonic    string
-		password    string
-		address     string
-		expectError bool
+		mnemonic      string
+		password      string
+		address       string
+		legacyAddress string
+		expectError   bool
 	}{
 		// dscd --keyring-backend test keys add 111 --dry-run -i
 		{
 			"gasp history river forget aware wide dance velvet weather rain rail dry cliff assault coach jelly choose spirit shoulder isolate kidney outer trust message",
 			"",
 			"d01xp6aqad49te7vsfga6str8hrdeh24r9jhplgxv",
+			"dx1w98j4vk6dkpyndjnv5dn2eemesq6a2c2j9depy",
 			false,
 		},
 		{
 			"section jeans evoke hockey result spell dish zero merge actress pink resource loan afford fitness install purity duck cannon ugly session stereo pattern spawn",
 			"",
 			"d018c8mer8lq2y8yw8cq8f4c6fdqfa8xcjg4x0y6k",
+			"dx1m3eg7v6pu0dga2knj9zm4683dk9c8800j9nfw0",
 			false,
 		},
 		{
 			"citizen marine borrow just apology mistake trumpet border sauce drip smile current excuse sing shove puppy dial ticket margin fabric afraid identify rookie elite",
 			"",
 			"d0164ea54aqgsmp7dp6wzs0y8n6vjehudnkvlsqzx",
+			"dx1lw2q66zph22x3hzmc527em25kd4zfydnx7arw7",
 			false,
 		},
 		{
 			"matter sketch program direct property attend humble any car develop useless mask like elevator garbage protect obvious boring vessel obscure wink raven fog flip",
 			"123456",
 			"d01d6n3s60lsp3cn9ddvtk5ctsfnmag0ceamlptk0",
+			"",
 			false,
 		},
 		{
@@ -43,6 +48,7 @@ func TestKnownAccount(t *testing.T) {
 			"matter sketch program direct property attend humble any car develop useless mask like elevator garbage protect obvious boring vessel obscure wink raven fog flip",
 			"12345",
 			"d01cmku6x7jlpf4utdkpc63dfp508mhu28kxrhmq0",
+			"",
 			false,
 		},
 		{
@@ -50,6 +56,7 @@ func TestKnownAccount(t *testing.T) {
 			"sketch program direct property attend humble any car develop useless mask like elevator garbage protect obvious boring vessel obscure wink raven fog flip",
 			"",
 			"d01cmku6x7jlpf4utdkpc63dfp508mhu28kxrhmq0",
+			"",
 			true,
 		},
 	}
@@ -61,6 +68,9 @@ func TestKnownAccount(t *testing.T) {
 		} else {
 			require.NoError(t, err, "inexpected error for mnemonic for acc '%s'", td.address)
 			require.Equal(t, td.address, acc.Address(), "address value for acc '%s'", td.address)
+		}
+		if td.legacyAddress > "" {
+			require.Equal(t, td.legacyAddress, acc.LegacyAddress())
 		}
 	}
 }
