@@ -22,42 +22,30 @@ type API struct {
 // NewAPI creates Decimal API instance.
 func NewAPI(apiURL string) *API {
 	initConfig()
+	// denom is detected by apiURL
+	var baseDenom = DevnetBaseCoin
+	if apiURL == MainnetGate {
+		baseDenom = MainnetBaseCoin
+	}
+	if apiURL == TestnetGate {
+		baseDenom = TestnetBaseCoin
+	}
 	return &API{
-		client: resty.New().SetBaseURL(apiURL).SetTimeout(time.Minute),
+		client:    resty.New().SetBaseURL(apiURL).SetTimeout(time.Minute),
+		baseDenom: baseDenom,
 	}
 }
 
 func (api *API) GetParameters() error {
-	type respDirectGenesis struct {
-		Result struct {
-			Genesis struct {
-				ChainID  string `json:"chain_id"`
-				AppState struct {
-					Coin struct {
-						Params struct {
-							BaseDenom string `json:"base_denom"`
-						} `json:"params"`
-					} `json:"coin"`
-				} `json:"app_state"`
-			} `json:"genesis"`
-		} `json:"result"`
-	}
 	// request
-	res, err := api.client.R().Get("/rpc/genesis")
+	res, err := api.client.R().Get("/rpc/genesis/chain")
 	if err = processConnectionError(res, err); err != nil {
 		return err
 	}
 	// json decode
-	respValue := respDirectGenesis{}
-	err = universalJSONDecode(res.Body(), &respValue, nil, func() (bool, bool) {
-		return respValue.Result.Genesis.ChainID > "", false
-	})
-	if err != nil {
-		return err
-	}
+	respValue := string(res.Body())
 	// process results
-	api.chainID = respValue.Result.Genesis.ChainID
-	api.baseDenom = respValue.Result.Genesis.AppState.Coin.Params.BaseDenom
+	api.chainID = respValue
 	return nil
 }
 

@@ -102,7 +102,9 @@ func main() {
     // A) gateway API
     // endpoints may be "https://testnet-gate.decimalchain.com/api"
     // "https://mainnet-gate.decimalchain.com/api"
-    api := dscApi.NewAPI("https://testnet-gate.decimalchain.com/api")
+    // Or you can use constans dscApi.MainnetGate, dscApi.TestnetGate, dscApi.DevnetGate,
+    api := dscApi.NewAPI("https://testnet-gate.decimalchain.com/api/")
+    api := dscApi.NewAPI(dscApi.TestnetGate)
     // B) direct node connection API
     api := dscApi.NewDirectAPI("localhost")
     api := dscApi.NewDirectAPIWithPorts("localhost", 26657, 1317)

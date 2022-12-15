@@ -391,11 +391,11 @@ type resultGetCoins struct {
 	} `json:"result"`
 }
 
-// /coins
+// /coin
 // Get all coins
 func (api *API) GetCoins(opt *OptionalParams) ([]CoinInfo, error) {
 
-	var link = "/coins"
+	var link = "/coin"
 	if opt != nil {
 		link += opt.String()
 	}
