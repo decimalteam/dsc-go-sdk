@@ -1,7 +1,9 @@
 package api
 
 import (
+	"encoding/base64"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"time"
@@ -197,6 +199,74 @@ func (api *API) CalculateFee(data []byte, denom string) (sdk.Coin, error) {
 		return sdk.Coin{}, fmt.Errorf("can't convert commission to int")
 	}
 	return sdk.NewCoin(denom, amount), nil
+}
+
+// request transaction by hash and decode to message, memo, fee
+func (api *API) DecodeTransaction(hash string) (TxDecoded, error) {
+	type respTxInfo struct {
+		Result struct {
+			Tx       string `json:"tx"`
+			TxResult struct {
+				Code      int    `json:"code"`
+				Codespace string `json:"codespace"`
+				Events    []struct {
+					Type       string `json:"type"`
+					Attributes []struct {
+						Key   string `json:"key"`
+						Value string `json:"value"`
+					} `json:"attributes"`
+				} `json:"events"`
+			} `json:"tx_result"`
+		} `json:"result"`
+	}
+	// request
+	res, err := api.client.R().Get(fmt.Sprintf("/rpc/tx?hash=%s", hash))
+	if err = processConnectionError(res, err); err != nil {
+		return TxDecoded{}, err
+	}
+	// json decode
+	respValue := respTxInfo{}
+	err = universalJSONDecode(res.Body(), &respValue, nil, func() (bool, bool) {
+		return respValue.Result.Tx > "", false
+	})
+	if err != nil {
+		return TxDecoded{}, err
+	}
+	// process result
+	bz, err := base64.StdEncoding.DecodeString(respValue.Result.Tx)
+	if err != nil {
+		return TxDecoded{}, err
+	}
+	txdec, err := decodeTransaction(bz)
+	if err != nil {
+		return TxDecoded{}, err
+	}
+	txdec.Code = respValue.Result.TxResult.Code
+	txdec.Codespace = respValue.Result.TxResult.Codespace
+	// find fee
+	for _, ev := range respValue.Result.TxResult.Events {
+		if ev.Type == "decimal.fee.v1.EventPayCommission" {
+			for _, attr := range ev.Attributes {
+				// "coins"
+				if attr.Key == "Y29pbnM=" {
+					bz, err := base64.StdEncoding.DecodeString(attr.Value)
+					if err != nil {
+						return TxDecoded{}, err
+					}
+					var c sdk.Coins
+					err = json.Unmarshal(bz, &c)
+					if err != nil {
+						return TxDecoded{}, err
+					}
+					if c.Len() > 0 {
+						txdec.Fee = c[0]
+					}
+				}
+			}
+		}
+	}
+
+	return txdec, nil
 }
 
 /*

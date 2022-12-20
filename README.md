@@ -168,7 +168,53 @@ func main() {
 }
 ```
 
-## II. Views (only gateway API)
+## II. Decode transaction (only gateway API)
+
+You can get and decode any transaction by using `DscAPI.DecodeTransaction(hexHash)`.
+
+```go
+package ...
+
+import (
+    "fmt"
+
+    // Required imports
+    dscApi "bitbucket.org/decimalteam/dsc-go-sdk/api"
+    dscTx "bitbucket.org/decimalteam/dsc-go-sdk/tx"
+    dscWallet "bitbucket.org/decimalteam/dsc-go-sdk/wallet"
+    // optional cosmos sdk to work with sdk.Coin and math.Int
+	sdk "github.com/cosmos/cosmos-sdk/types"
+)
+
+/* type declared in dscApi package
+type TxDecoded struct {
+	Msg  sdk.Msg  // transaction message
+	Memo string   // transaction memo
+	Fee  sdk.Coin // payed fee
+	// error info
+	Code      int    // error code, 0 - no errors
+	Codespace string // codespace if code > 0
+}
+*/
+
+func main() {
+    api := dscApi.NewAPI(...)
+    txDecoded, err := api.DecodeTransaction("HEXHASH")
+    // ...error handling
+	msg, ok := txDecoded.Msg.(*dscTx.MsgSendCoin)
+	if !ok {
+		fmt.Printf("it's not MsgSendCoin")
+		return
+	}
+	fmt.Printf("sender: %s\n", msg.Sender)
+	fmt.Printf("recipient: %s\n", msg.Recipient)
+	fmt.Printf("coin: %s\n", msg.Coin)
+    fmt.Printf("memo: %s\n", txDecoded.Memo)
+    fmt.Printf("fee: %s\n", txDecoded.Fee)
+}
+```
+
+## III. Views (only gateway API)
 
 To get some information about blocks, transactions, accounts, etc use GetXXX methods.
 
