@@ -422,31 +422,21 @@ func (api *API) GetCoins(opt *OptionalParams) ([]CoinInfo, error) {
 type resultGetCoin struct {
 	Ok     bool `json:"ok"`
 	Result struct {
-		Intervals []string `json:"intervals"`
-		Coin      struct {
-			Avatar        string `json:"avatar"`
-			Symbol        string `json:"symbol"`
-			Title         string `json:"title"`
-			Creator       string `json:"creator"`
-			LimitVolume   string `json:"limitVolume"`
-			Volume        string `json:"volume"`
-			Reserve       string `json:"reserve"`
-			Delegated     string `json:"delegated"`
-			Locked        string `json:"locked"`
-			Crr           uint64 `json:"crr"`
-			Created       string `json:"created"`
-			Token         string `json:"token"`
-			Price         string `json:"price"`
-			PriceUSD      string `json:"priceUSD"`
-			PriceDelegate string `json:"priceDelegate"`
-		} `json:"coin"`
-		Volume24    string `json:"volume24"`
-		Delegated24 string `json:"delegated24"`
-		Initial     struct {
-			Volume  string `json:"volume"`
-			Reserve string `json:"reserve"`
-			Price   string `json:"price"`
-		} `json:"initial"`
+		Avatar        string `json:"avatar"`
+		Symbol        string `json:"symbol"`
+		Title         string `json:"title"`
+		Creator       string `json:"creator"`
+		LimitVolume   string `json:"limitVolume"`
+		Volume        string `json:"volume"`
+		Reserve       string `json:"reserve"`
+		Delegated     string `json:"delegated"`
+		Locked        string `json:"locked"`
+		Crr           uint64 `json:"crr"`
+		Created       string `json:"created"`
+		Token         string `json:"token"`
+		Price         string `json:"price"`
+		PriceUSD      string `json:"priceUSD"`
+		PriceDelegate string `json:"priceDelegate"`
 	} `json:"result"`
 }
 

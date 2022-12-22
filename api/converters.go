@@ -10,24 +10,24 @@ func converterGetCoin(resp resultGetCoin) (*CoinInfo, error) {
 	var res *CoinInfo = &CoinInfo{}
 	var ok bool
 
-	res.Symbol = resp.Result.Coin.Symbol
-	res.Title = resp.Result.Coin.Title
-	res.CRR = resp.Result.Coin.Crr
-	res.Volume, ok = math.NewIntFromString(resp.Result.Coin.Volume)
+	res.Symbol = resp.Result.Symbol
+	res.Title = resp.Result.Title
+	res.CRR = resp.Result.Crr
+	res.Volume, ok = math.NewIntFromString(resp.Result.Volume)
 	if !ok {
-		return nil, fmt.Errorf("cannot convert volume '%s' to math.Int", resp.Result.Coin.Volume)
+		return nil, fmt.Errorf("cannot convert volume '%s' to math.Int", resp.Result.Volume)
 	}
-	res.Reserve, ok = math.NewIntFromString(resp.Result.Coin.Reserve)
+	res.Reserve, ok = math.NewIntFromString(resp.Result.Reserve)
 	if !ok {
-		return nil, fmt.Errorf("cannot convert reserve '%s' to math.Int", resp.Result.Coin.Reserve)
+		return nil, fmt.Errorf("cannot convert reserve '%s' to math.Int", resp.Result.Reserve)
 	}
-	res.LimitVolume, ok = math.NewIntFromString(resp.Result.Coin.LimitVolume)
+	res.LimitVolume, ok = math.NewIntFromString(resp.Result.LimitVolume)
 	if !ok {
-		return nil, fmt.Errorf("cannot convert limit volume '%s' to math.Int", resp.Result.Coin.LimitVolume)
+		return nil, fmt.Errorf("cannot convert limit volume '%s' to math.Int", resp.Result.LimitVolume)
 	}
-	res.Creator = resp.Result.Coin.Creator
+	res.Creator = resp.Result.Creator
 
-	return &CoinInfo{}, nil
+	return res, nil
 }
 
 func converterGetCoins(resp resultGetCoins) ([]CoinInfo, error) {
