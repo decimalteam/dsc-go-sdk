@@ -417,3 +417,15 @@ func converterGetNFTTransactions(resp resultGetNFTTransactions) ([]TxInfo, error
 	}
 	return res, nil
 }
+
+func converterGetNFT(resp resultGetNFT) (*NFT, error) {
+	var res = &NFT{}
+
+	res.NftCollection = resp.Result.NftCollection
+	res.NftId = resp.Result.NftId
+	res.Quantity = resp.Result.Quantity
+	res.TokenURI = resp.Result.TokenURI
+	res.AllowMint = resp.Result.AllowMint
+
+	return res, nil
+}

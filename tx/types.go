@@ -2,10 +2,12 @@ package tx
 
 import (
 	coinTypes "bitbucket.org/decimalteam/go-smart-node/x/coin/types"
+	feeTypes "bitbucket.org/decimalteam/go-smart-node/x/fee/types"
 	multisigTypes "bitbucket.org/decimalteam/go-smart-node/x/multisig/types"
 	nftTypes "bitbucket.org/decimalteam/go-smart-node/x/nft/types"
 	swapTypes "bitbucket.org/decimalteam/go-smart-node/x/swap/types"
 	validatorTypes "bitbucket.org/decimalteam/go-smart-node/x/validator/types"
+	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 )
 
 type (
@@ -21,6 +23,8 @@ type (
 
 	MultiSendEntry = coinTypes.MultiSendEntry
 
+	MsgUpdateCoinPrices = feeTypes.MsgUpdateCoinPrices
+
 	MsgMintToken     = nftTypes.MsgMintToken
 	MsgBurnToken     = nftTypes.MsgBurnToken
 	MsgUpdateReserve = nftTypes.MsgUpdateReserve
@@ -33,6 +37,7 @@ type (
 
 	MsgInitializeSwap = swapTypes.MsgInitializeSwap
 	MsgRedeemSwap     = swapTypes.MsgRedeemSwap
+	MsgActivateChain  = swapTypes.MsgActivateChain
 
 	MsgCreateValidator       = validatorTypes.MsgCreateValidator
 	MsgEditValidator         = validatorTypes.MsgEditValidator
@@ -48,6 +53,12 @@ type (
 	MsgCancelRedelegationNFT = validatorTypes.MsgCancelRedelegationNFT
 	MsgCancelUndelegation    = validatorTypes.MsgCancelUndelegation
 	MsgCancelUndelegationNFT = validatorTypes.MsgCancelUndelegationNFT
+
+	Description = validatorTypes.Description
+
+	MsgSoftwareUpgrade = upgradetypes.MsgSoftwareUpgrade
+	MsgCancelUpgrade   = upgradetypes.MsgCancelUpgrade
+	Plan               = upgradetypes.Plan
 )
 
 var (
@@ -67,12 +78,15 @@ var (
 	NewMsgSendToken     = nftTypes.NewMsgSendToken
 	NewMsgUpdateToken   = nftTypes.NewMsgUpdateToken
 
+	NewMsgUpdateCoinPrices = feeTypes.NewMsgUpdateCoinPrices
+
 	NewMsgCreateWallet      = multisigTypes.NewMsgCreateWallet
 	NewMsgCreateTransaction = multisigTypes.NewMsgCreateTransaction
 	NewMsgSignTransaction   = multisigTypes.NewMsgSignTransaction
 
 	NewMsgInitializeSwap = swapTypes.NewMsgInitializeSwap
 	NewMsgRedeemSwap     = swapTypes.NewMsgRedeemSwap
+	NewMsgActivateChain  = swapTypes.NewMsgActivateChain
 
 	NewMsgCreateValidator       = validatorTypes.NewMsgCreateValidator
 	NewMsgEditValidator         = validatorTypes.NewMsgEditValidator
@@ -88,4 +102,6 @@ var (
 	NewMsgCancelRedelegationNFT = validatorTypes.NewMsgCancelRedelegationNFT
 	NewMsgCancelUndelegation    = validatorTypes.NewMsgCancelUndelegation
 	NewMsgCancelUndelegationNFT = validatorTypes.NewMsgCancelUndelegationNFT
+
+	NewDescription = validatorTypes.NewDescription
 )

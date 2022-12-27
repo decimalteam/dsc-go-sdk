@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"cosmossdk.io/math"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 type OptionalParams struct {
@@ -81,9 +82,9 @@ type NFT struct {
 	NftCollection string
 	NftId         string
 	Quantity      uint64
-	Reserve       math.Int
-	Sender        string
-	Recipient     string
+	Reserve       sdk.Coin
+	TokenURI      string
+	AllowMint     bool
 }
 
 type Validator struct {
