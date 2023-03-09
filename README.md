@@ -180,10 +180,11 @@ import (
 
     // Required imports
     dscApi "bitbucket.org/decimalteam/dsc-go-sdk/api"
-    dscTx "bitbucket.org/decimalteam/dsc-go-sdk/tx"
+    //dscTx "bitbucket.org/decimalteam/dsc-go-sdk/tx"
     dscWallet "bitbucket.org/decimalteam/dsc-go-sdk/wallet"
     // optional cosmos sdk to work with sdk.Coin and math.Int
 	sdk "github.com/cosmos/cosmos-sdk/types"
+    evmtypes "github.com/evmos/ethermint/x/evm/types"
 )
 
 /* type declared in dscApi package
@@ -201,7 +202,12 @@ func main() {
     api := dscApi.NewAPI(...)
     txDecoded, err := api.DecodeTransaction("HEXHASH")
     // ...error handling
-	msg, ok := txDecoded.Msg.(*dscTx.MsgSendCoin)
+	// msg, ok := txDecoded.Msg.(*dscTx.MsgSendCoin)
+	// if !ok {
+	// 	fmt.Printf("it's not MsgSendCoin")
+	// 	return
+	// }
+    msg, ok := msg.(*evmtypes.MsgEthereumTx)
 	if !ok {
 		fmt.Printf("it's not MsgSendCoin")
 		return
