@@ -202,14 +202,9 @@ func main() {
     api := dscApi.NewAPI(...)
     txDecoded, err := api.DecodeTransaction("HEXHASH")
     // ...error handling
-	// msg, ok := txDecoded.Msg.(*dscTx.MsgSendCoin)
-	// if !ok {
-	// 	fmt.Printf("it's not MsgSendCoin")
-	// 	return
-	// }
     msg, ok := msg.(*evmtypes.MsgEthereumTx)
 	if !ok {
-		fmt.Printf("it's not MsgSendCoin")
+		fmt.Printf("it's not MsgEthereumTx")
 		return
 	}
 	fmt.Printf("sender: %s\n", msg.Sender)
