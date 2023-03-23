@@ -1,6 +1,6 @@
 module bitbucket.org/decimalteam/dsc-go-sdk
 
-go 1.19
+go 1.20
 
 require (
 	bitbucket.org/decimalteam/go-smart-node v0.0.0-20221214063359-d4ba68dc4c2c
