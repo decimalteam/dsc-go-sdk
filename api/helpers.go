@@ -1,9 +1,10 @@
 package api
 
 import (
-	"math/big"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/ethereum/go-ethereum/common/hexutil"
+	"math/big"
 )
 
 var (
@@ -35,4 +36,38 @@ func WeiToFinney(wei sdk.Int) sdk.Int {
 // WeiToEther convert 1 * 10^18 to 1
 func WeiToEther(wei sdk.Int) sdk.Int {
 	return wei.Quo(sdkE18)
+}
+
+// GetDecimalAddressFromBech32 returns the sdk.Account address of given address, while
+// also changing bech32 human readable prefix (HRP) to the value set on the global sdk.Config (eg: `dx`).
+// The function fails if the provided bech32 address is invalid.
+func GetDecimalAddressFromBech32(address string) (sdk.AccAddress, error) {
+
+	addressBz, err := sdk.GetFromBech32(address, "d0")
+	if err != nil {
+		return nil, sdkerrors.ErrInvalidAddress
+	}
+
+	// safety check: shouldn't happen
+	if err := sdk.VerifyAddressFormat(addressBz); err != nil {
+		return nil, err
+	}
+
+	return sdk.AccAddress(addressBz), nil
+}
+
+// GetDecimalAddressFromHex returns the sdk.Account address of given address.
+// The function fails if the provided hex address is invalid or does not start with 0x.
+func GetDecimalAddressFromHex(address string) (sdk.AccAddress, error) {
+	addressBz, err := hexutil.Decode(address)
+	if err != nil {
+		return nil, sdkerrors.ErrInvalidAddress
+	}
+
+	// safety check: shouldn't happen
+	if err := sdk.VerifyAddressFormat(addressBz); err != nil {
+		return nil, err
+	}
+
+	return sdk.AccAddress(addressBz), nil
 }
