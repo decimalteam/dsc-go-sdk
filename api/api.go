@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"time"
 
+	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	evm "github.com/evmos/ethermint/x/evm/types"
 	"github.com/go-resty/resty/v2"
@@ -246,8 +247,6 @@ func (api *API) DecodeTransaction(hash string) (TxDecoded, error) {
 	txdec.Code = respValue.Result.TxResult.Code
 	txdec.Codespace = respValue.Result.TxResult.Codespace
 
-	var coins sdk.Coins
-
 	// find fee
 	for _, ev := range respValue.Result.TxResult.Events {
 		if ev.Type == "decimal.fee.v1.EventPayCommission" {
@@ -258,17 +257,8 @@ func (api *API) DecodeTransaction(hash string) (TxDecoded, error) {
 					if err != nil {
 						return TxDecoded{}, err
 					}
-					err = json.Unmarshal(bz, &coins)
-					if err != nil {
-						return TxDecoded{}, err
-					}
-				}
-				if attr.Key == "YnVybnQ=" {
-					bz, err := base64.StdEncoding.DecodeString(attr.Value)
-					if err != nil {
-						return TxDecoded{}, err
-					}
 					var c sdk.Coins
+					fmt.Printf("GetTxByHash() error: %s\n", bz)
 					err = json.Unmarshal(bz, &c)
 					if err != nil {
 						return TxDecoded{}, err
@@ -284,6 +274,9 @@ func (api *API) DecodeTransaction(hash string) (TxDecoded, error) {
 	msg, ok := txdec.Msg.(*evm.MsgEthereumTx)
 	if ok {
 		msg.GetSigners()
+		var coin sdk.Coin
+		coin.Amount = sdkmath.NewIntFromBigInt(msg.AsTransaction().Value())
+		coin.Denom = "del"
 		var recipient = msg.AsTransaction().To().String()
 		sender, err := GetDecimalAddressFromHex(msg.From)
 		if err == nil {
@@ -296,7 +289,7 @@ func (api *API) DecodeTransaction(hash string) (TxDecoded, error) {
 		txdec.Msg = &dscTx.MsgSendCoin{
 			Sender:    msg.From,
 			Recipient: recipient,
-			Coin:      coins[0],
+			Coin:      coin,
 		}
 	}
 

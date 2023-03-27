@@ -391,7 +391,7 @@ func printTxInfo(api *dscApi.API) {
 }
 
 func printTxDecodeInfo(api *dscApi.API) {
-	for _, hash := range []string{"2B912894AA14D87DA3DC492E3F174FD26A60E6FB75EDB86BA5DC4B9FC0566CA8"} {
+	for _, hash := range []string{"2087904895F9DB43356568DA232F0BD0F9C81A5B733D6862654E0B21737AFD26"} {
 		txDecoded, err := api.DecodeTransaction(hash)
 		if err != nil {
 			fmt.Printf("GetTxByHash() error: %v\n", err)
