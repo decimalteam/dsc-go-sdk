@@ -258,7 +258,6 @@ func (api *API) DecodeTransaction(hash string) (TxDecoded, error) {
 						return TxDecoded{}, err
 					}
 					var c sdk.Coins
-					fmt.Printf("GetTxByHash() error: %s\n", bz)
 					err = json.Unmarshal(bz, &c)
 					if err != nil {
 						return TxDecoded{}, err
@@ -273,6 +272,9 @@ func (api *API) DecodeTransaction(hash string) (TxDecoded, error) {
 
 	msg, ok := txdec.Msg.(*evm.MsgEthereumTx)
 	if ok {
+		if sdkmath.NewIntFromBigInt(msg.AsTransaction().Value()).IsZero() {
+			return txdec, nil
+		}
 		msg.GetSigners()
 		var coin sdk.Coin
 		coin.Amount = sdkmath.NewIntFromBigInt(msg.AsTransaction().Value())
