@@ -640,7 +640,13 @@ func sendTx(client *ethclient.Client, txData string) {
 	amount := new(big.Int)
 	amount.SetString("100000000000000000000", 10)
 
-	tx := types.NewContractCreation(nonce, value, 1000000000, gasPrice, []byte(txData))
+	tx := types.NewTx(&types.LegacyTx{
+		Nonce:    nonce,
+		GasPrice: gasPrice,
+		Gas:      1000000000,
+		Value:    value,
+		Data:     []byte(txData),
+	})
 
 	chainID, err := client.NetworkID(context.Background())
 	if err != nil {
