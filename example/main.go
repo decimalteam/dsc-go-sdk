@@ -7,12 +7,9 @@ import (
 	"crypto/ecdsa"
 	"encoding/json"
 	"fmt"
-	"github.com/ethereum/go-ethereum"
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/tendermint/crypto/sha3"
 	"io"
 	"math/big"
 	"net/http"
@@ -52,8 +49,8 @@ type Response struct {
 func main() {
 	//verifyEndpoints()
 
-	checkGateAPI()
-	checkDirectAPI()
+	//checkGateAPI()
+	//checkDirectAPI()
 
 	//printBlockchainInfo(api)
 
@@ -640,26 +637,10 @@ func sendTx(client *ethclient.Client, txData string) {
 		return
 	}
 
-	tokenAddress := common.HexToAddress("0x212c3850e2b947708a8fa3ea13b1447eb802db0f")
-
-	transferFnSignature := []byte("transfer(address,uint256)")
-	hash := sha3.NewLegacyKeccak256()
-	hash.Write(transferFnSignature)
-
 	amount := new(big.Int)
 	amount.SetString("100000000000000000000", 10)
 
-	gasLimit, err := client.EstimateGas(context.Background(), ethereum.CallMsg{
-		To:   nil,
-		Data: []byte(txData),
-	})
-	if err != nil {
-		fmt.Printf("client.EstimateGas error: %v\n", err)
-		return
-	}
-	fmt.Println(gasLimit)
-
-	tx := types.NewTransaction(nonce, tokenAddress, value, gasLimit, gasPrice, []byte(txData))
+	tx := types.NewContractCreation(nonce, value, 1000000000, gasPrice, []byte(txData))
 
 	chainID, err := client.NetworkID(context.Background())
 	if err != nil {
@@ -681,4 +662,3 @@ func sendTx(client *ethclient.Client, txData string) {
 
 	fmt.Printf("tx sent: %s", signedTx.Hash().Hex())
 }
-
