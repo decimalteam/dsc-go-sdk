@@ -3,8 +3,20 @@ package main
 // This is example of using Decimal Smart Chain API
 
 import (
+	"context"
+	"crypto/ecdsa"
 	"encoding/json"
 	"fmt"
+	"github.com/ethereum/go-ethereum"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/tendermint/crypto/sha3"
+	"io"
+	"math/big"
+	"net/http"
+	"net/url"
 	"time"
 
 	dscApi "bitbucket.org/decimalteam/dsc-go-sdk/api"
@@ -15,6 +27,27 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
+
+const (
+	byteCodePath      = dscApi.DevnetGate + "/evm-token/data?"
+	devNetValPath     = "https://devnet-val.decimalchain.com/web3/"
+	privateKeyAddress = "5391dcade0740d152e4cb91af02918ae2d09b3200398da25c1a09916a28536bf"
+)
+
+type Payload struct {
+	Name      string
+	Symbol    string
+	Supply    string
+	MaxSupply string
+	Mintable  string
+	Burnable  string
+	Capped    string
+}
+
+type Response struct {
+	Ok     bool
+	Result string
+}
 
 func main() {
 	//verifyEndpoints()
@@ -27,6 +60,16 @@ func main() {
 	//sampleSendCoins(api)
 	//time.Sleep(time.Second * 10)
 
+	payload := getPayload()
+
+	txData, err := getBytecode(byteCodePath, payload)
+
+	cleint, err := ethclient.Dial(devNetValPath)
+	if err != nil {
+		fmt.Printf("ethclient.Dial error: %v\n", err)
+	}
+
+	sendTx(cleint, txData.Result)
 }
 
 func checkGateAPI() {
@@ -437,3 +480,205 @@ func printGetValidatorsByKind(api *dscApi.API) {
 		}
 	}
 }
+
+func getPayload() *Payload {
+	return &Payload{
+		Name:      "testR",
+		Symbol:    "RTTA",
+		Supply:    "100",
+		MaxSupply: "1000000",
+		Mintable:  "true",
+		Burnable:  "true",
+		Capped:    "false",
+	}
+}
+
+func getBytecode(path string, payload *Payload) (*Response, error) {
+	request, err := http.NewRequest(http.MethodGet, path, nil)
+	if err != nil {
+		return nil, fmt.Errorf("get request error: %s", err)
+	}
+
+	request.Header = http.Header{
+		"Content-type": {"application/json"},
+	}
+
+	urlValues := url.Values{}
+	urlValues.Add("name", payload.Name)
+	urlValues.Add("symbol", payload.Symbol)
+	urlValues.Add("supply", payload.Supply)
+	urlValues.Add("maxSupply", payload.MaxSupply)
+	urlValues.Add("mintable", payload.Mintable)
+	urlValues.Add("burnable", payload.Burnable)
+	urlValues.Add("capped", payload.Capped)
+
+	request.URL.RawQuery = urlValues.Encode()
+	response, err := http.DefaultClient.Do(request)
+	if err != nil {
+		return nil, fmt.Errorf("get request error: %s", err)
+	}
+	defer response.Body.Close()
+
+	bytes, err := io.ReadAll(response.Body)
+	if err != nil {
+		return nil, fmt.Errorf("read response body error: %s", err)
+	}
+
+	var result Response
+	err = json.Unmarshal(bytes, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}
+
+func sendCoinNEO(api *dscApi.API, senderWallet *dscWallet.Account, receiver string) {
+	// 1. set valid chain ID, account number, account sequence (nonce) for Sender
+	num, seq, err := api.GetAccountNumberAndSequence(senderWallet.Address())
+	if err != nil {
+		fmt.Printf("GetAccountNumberAndSequence(%s) error: %v\n", senderWallet.Address(), err)
+		return
+	}
+	senderWallet = senderWallet.WithChainID(api.ChainID()).WithSequence(seq).WithAccountNumber(num)
+
+	// 2. prepare message
+	// example of use Cosmos SDK standart functions: sdk.NewCoin, math.NewInt
+
+	receiverAddress, err := sdk.AccAddressFromBech32(receiver)
+	if err != nil {
+		fmt.Printf("sdk.AccAddressFromBech32(%s) error: %v\n", receiver, err)
+		return
+	}
+
+	msg := dscTx.NewMsgSendCoin(
+		senderWallet.SdkAddress(),
+		receiverAddress,
+		sdk.NewCoin("del", dscApi.EtherToWei(math.NewInt(1))),
+	)
+
+	// 3. build transaction
+	tx, err := dscTx.BuildTransaction(
+		senderWallet,
+		[]sdk.Msg{msg},
+		"go sdk test", // any transaction memo
+		// fee to pay for transaction
+		// if amount = 0, amount will be calculated and collected automaticaly by validator
+		sdk.NewCoin("del", sdk.NewInt(0)),
+	)
+	if err != nil {
+		fmt.Printf("Create tx error: %v\n", err)
+		return
+	}
+
+	// 4. sign transaction and serialize to bytes
+	err = tx.SignTransaction(senderWallet)
+	if err != nil {
+		fmt.Printf("Sign tx error: %v\n", err)
+		return
+	}
+	bz, err := tx.BytesToSend()
+	if err != nil {
+		fmt.Printf("Bytes tx error: %v\n", err)
+		return
+	}
+
+	// 5. send transaction bytes to blockchain node
+	// 1) BroadcastTxSync: send transaction and get transaction hash and
+	// possible error of transaction check
+	// You can check transaction delivery by hash
+	// 2) BroadcastTxCommit: same as BroadcastTxSync, but WAIT
+	// for delivery and end of block (about 5 seconds)
+	result, err := api.BroadcastTxSync(bz)
+	if err != nil {
+		fmt.Printf("BroadcastTxSync error: %v\n", err)
+		return
+	}
+	fmt.Printf("Send result: %s\n", formatAsJSON(result))
+
+	// This is dumb method to wait for delivery
+	// You can send multiple transactions, accumulate hashes and check
+	// all transactions later
+	for i := 0; i < 6; i++ {
+		txInfo, err := api.GetTxByHash(result.Hash)
+		if err != nil {
+			fmt.Printf("GetTxByHash error: %v\n", err)
+			time.Sleep(time.Second)
+		} else {
+			fmt.Printf("TxInfo: %v\n", formatAsJSON(txInfo))
+			break
+		}
+	}
+}
+
+func sendTx(client *ethclient.Client, txData string) {
+
+	privateKey, err := crypto.HexToECDSA(privateKeyAddress)
+	if err != nil {
+		fmt.Printf("crypto.HexToECDSA error: %v\n", err)
+		return
+	}
+
+	publicKey := privateKey.Public()
+	publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
+	if !ok {
+		fmt.Printf("cannot assert type: publicKey is not of type *ecdsa.PublicKey")
+		return
+	}
+
+	fromAddress := crypto.PubkeyToAddress(*publicKeyECDSA)
+	nonce, err := client.PendingNonceAt(context.Background(), fromAddress)
+	if err != nil {
+		fmt.Printf("crypto.HexToECDSA error: %v\n", err)
+		return
+	}
+
+	value := big.NewInt(0)
+	gasPrice, err := client.SuggestGasPrice(context.Background())
+	if err != nil {
+		fmt.Printf("client.SuggestGasPrice error: %v\n", err)
+		return
+	}
+
+	tokenAddress := common.HexToAddress("0x212c3850e2b947708a8fa3ea13b1447eb802db0f")
+
+	transferFnSignature := []byte("transfer(address,uint256)")
+	hash := sha3.NewLegacyKeccak256()
+	hash.Write(transferFnSignature)
+
+	amount := new(big.Int)
+	amount.SetString("100000000000000000000", 10)
+
+	gasLimit, err := client.EstimateGas(context.Background(), ethereum.CallMsg{
+		To:   nil,
+		Data: []byte(txData),
+	})
+	if err != nil {
+		fmt.Printf("client.EstimateGas error: %v\n", err)
+		return
+	}
+	fmt.Println(gasLimit)
+
+	tx := types.NewTransaction(nonce, tokenAddress, value, gasLimit, gasPrice, []byte(txData))
+
+	chainID, err := client.NetworkID(context.Background())
+	if err != nil {
+		fmt.Printf("client.NetworkID error: %v\n", err)
+		return
+	}
+
+	signedTx, err := types.SignTx(tx, types.NewEIP155Signer(chainID), privateKey)
+	if err != nil {
+		fmt.Printf("types.SignTx error: %v\n", err)
+		return
+	}
+
+	err = client.SendTransaction(context.Background(), signedTx)
+	if err != nil {
+		fmt.Printf("client.SendTransaction error: %v\n", err)
+		return
+	}
+
+	fmt.Printf("tx sent: %s", signedTx.Hash().Hex())
+}
+
