@@ -57,16 +57,7 @@ func main() {
 	//sampleSendCoins(api)
 	//time.Sleep(time.Second * 10)
 
-	payload := getPayload()
-
-	txData, err := getBytecode(byteCodePath, payload)
-
-	cleint, err := ethclient.Dial(devNetValPath)
-	if err != nil {
-		fmt.Printf("ethclient.Dial error: %v\n", err)
-	}
-
-	sendTx(cleint, txData.Result)
+	//sendTokenPayload()
 }
 
 func checkGateAPI() {
@@ -530,84 +521,22 @@ func getBytecode(path string, payload *Payload) (*Response, error) {
 	return &result, nil
 }
 
-func sendCoinNEO(api *dscApi.API, senderWallet *dscWallet.Account, receiver string) {
-	// 1. set valid chain ID, account number, account sequence (nonce) for Sender
-	num, seq, err := api.GetAccountNumberAndSequence(senderWallet.Address())
+func sendTokenPayload() {
+	payload := getPayload()
+
+	txData, err := getBytecode(byteCodePath, payload)
 	if err != nil {
-		fmt.Printf("GetAccountNumberAndSequence(%s) error: %v\n", senderWallet.Address(), err)
-		return
+		fmt.Printf("getBytecode error: %v\n", err)
 	}
-	senderWallet = senderWallet.WithChainID(api.ChainID()).WithSequence(seq).WithAccountNumber(num)
 
-	// 2. prepare message
-	// example of use Cosmos SDK standart functions: sdk.NewCoin, math.NewInt
-
-	receiverAddress, err := sdk.AccAddressFromBech32(receiver)
+	client, err := ethclient.Dial(devNetValPath)
 	if err != nil {
-		fmt.Printf("sdk.AccAddressFromBech32(%s) error: %v\n", receiver, err)
-		return
+		fmt.Printf("ethclient.Dial error: %v\n", err)
 	}
 
-	msg := dscTx.NewMsgSendCoin(
-		senderWallet.SdkAddress(),
-		receiverAddress,
-		sdk.NewCoin("del", dscApi.EtherToWei(math.NewInt(1))),
-	)
-
-	// 3. build transaction
-	tx, err := dscTx.BuildTransaction(
-		senderWallet,
-		[]sdk.Msg{msg},
-		"go sdk test", // any transaction memo
-		// fee to pay for transaction
-		// if amount = 0, amount will be calculated and collected automaticaly by validator
-		sdk.NewCoin("del", sdk.NewInt(0)),
-	)
-	if err != nil {
-		fmt.Printf("Create tx error: %v\n", err)
-		return
-	}
-
-	// 4. sign transaction and serialize to bytes
-	err = tx.SignTransaction(senderWallet)
-	if err != nil {
-		fmt.Printf("Sign tx error: %v\n", err)
-		return
-	}
-	bz, err := tx.BytesToSend()
-	if err != nil {
-		fmt.Printf("Bytes tx error: %v\n", err)
-		return
-	}
-
-	// 5. send transaction bytes to blockchain node
-	// 1) BroadcastTxSync: send transaction and get transaction hash and
-	// possible error of transaction check
-	// You can check transaction delivery by hash
-	// 2) BroadcastTxCommit: same as BroadcastTxSync, but WAIT
-	// for delivery and end of block (about 5 seconds)
-	result, err := api.BroadcastTxSync(bz)
-	if err != nil {
-		fmt.Printf("BroadcastTxSync error: %v\n", err)
-		return
-	}
-	fmt.Printf("Send result: %s\n", formatAsJSON(result))
-
-	// This is dumb method to wait for delivery
-	// You can send multiple transactions, accumulate hashes and check
-	// all transactions later
-	for i := 0; i < 6; i++ {
-		txInfo, err := api.GetTxByHash(result.Hash)
-		if err != nil {
-			fmt.Printf("GetTxByHash error: %v\n", err)
-			time.Sleep(time.Second)
-		} else {
-			fmt.Printf("TxInfo: %v\n", formatAsJSON(txInfo))
-			break
-		}
-	}
+	sendTx(client, txData.Result)
 }
-
+	
 func sendTx(client *ethclient.Client, txData string) {
 
 	privateKey, err := crypto.HexToECDSA(privateKeyAddress)
