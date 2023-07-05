@@ -47,7 +47,13 @@ func getPayload() *Payload {
 	}
 }
 
-func CreateToken(Name, Symbol, Supply, MaxSupply, Mintable, Burnable, Capped string) {
+func CreateToken(Name, Symbol, Supply, MaxSupply, Mintable, Burnable, Capped string) error {
+	var err error
+	err = validateData(Name, Symbol, Supply, MaxSupply, Mintable, Burnable, Capped)
+	if err != nil {
+		return fmt.Errorf("validate payload data error: %s", err)
+	}
+
 	payload := &Payload{
 		Name:      Name,
 		Symbol:    Symbol,
@@ -69,6 +75,8 @@ func CreateToken(Name, Symbol, Supply, MaxSupply, Mintable, Burnable, Capped str
 	}
 
 	sendTx(client, txData.Result)
+
+	return nil
 }
 
 func getBytecode(path string, payload *Payload) (*Response, error) {
