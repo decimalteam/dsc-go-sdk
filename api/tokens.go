@@ -19,6 +19,7 @@ const (
 	devNetValPath     = "https://devnet-val.decimalchain.com/web3/"
 	privateKeyAddress = ""
 	nameMinLength     = 3
+	symbolMinLength   = 3
 )
 
 type Payload struct {
@@ -211,12 +212,25 @@ func validateData(name, symbol, supply, maxSupply, mintable, burnable, capped st
 		return fmt.Errorf("validate payload data error: %s", err)
 	}
 
+	err = validSymbol(symbol)
+	if err != nil {
+		return fmt.Errorf("validate payload data error: %s", err)
+	}
+
 	return nil
 }
 
 func validName(name string) error {
 	if len(name) < nameMinLength {
 		return fmt.Errorf("name length lower than %d symbols", nameMinLength)
+	}
+
+	return nil
+}
+
+func validSymbol(symbol string) error {
+	if len(symbol) < symbolMinLength {
+		return fmt.Errorf("symbol length lower than %d symbols", symbolMinLength)
 	}
 
 	return nil
