@@ -47,6 +47,30 @@ func getPayload() *Payload {
 	}
 }
 
+func CreateToken(Name, Symbol, Supply, MaxSupply, Mintable, Burnable, Capped string) {
+	payload := &Payload{
+		Name:      Name,
+		Symbol:    Symbol,
+		Supply:    Supply,
+		MaxSupply: MaxSupply,
+		Mintable:  Mintable,
+		Burnable:  Burnable,
+		Capped:    Capped,
+	}
+
+	txData, err := getBytecode(byteCodePath, payload)
+	if err != nil {
+		fmt.Printf("getBytecode error: %v\n", err)
+	}
+
+	client, err := ethclient.Dial(devNetValPath)
+	if err != nil {
+		fmt.Printf("ethclient.Dial error: %v\n", err)
+	}
+
+	sendTx(client, txData.Result)
+}
+
 func getBytecode(path string, payload *Payload) (*Response, error) {
 	request, err := http.NewRequest(http.MethodGet, path, nil)
 	if err != nil {
