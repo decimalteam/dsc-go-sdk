@@ -187,3 +187,15 @@ func sendTx(client *ethclient.Client, txData string) {
 
 	fmt.Printf("tx sent: %s", signedTx.Hash().Hex())
 }
+
+// Name:      "testR", - string ne menishe 3 sinbolov
+//
+//	Symbol:    "RTTA", - string ne menishe 3 sinbolov
+//	Supply:    "100", - big int i on doljen biti menishe cem MaxSupply
+//	MaxSupply: "1000000", big int i on doljen biti bolishe cem Supply
+//	Mintable:  "true", - boolean
+//	Burnable:  "true", - boolean
+//	Capped:    "false", - boolean
+func validateData(name, symbol, supply, maxSupply, mintable, burnable, capped string) error {
+	return nil
+}
