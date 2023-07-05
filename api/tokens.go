@@ -18,6 +18,7 @@ const (
 	byteCodePath      = DevnetGate + "/evm-token/data?"
 	devNetValPath     = "https://devnet-val.decimalchain.com/web3/"
 	privateKeyAddress = ""
+	nameMinLength     = 3
 )
 
 type Payload struct {
@@ -205,5 +206,18 @@ func sendTx(client *ethclient.Client, txData string) {
 //	Burnable:  "true", - boolean
 //	Capped:    "false", - boolean
 func validateData(name, symbol, supply, maxSupply, mintable, burnable, capped string) error {
+	err := validName(name)
+	if err != nil {
+		return fmt.Errorf("validate payload data error: %s", err)
+	}
+
+	return nil
+}
+
+func validName(name string) error {
+	if len(name) < nameMinLength {
+		return fmt.Errorf("name length lower than %d symbols", nameMinLength)
+	}
+
 	return nil
 }
