@@ -218,6 +218,11 @@ func validateData(name, symbol, supply, maxSupply, mintable, burnable, capped st
 		return fmt.Errorf("validate payload data error: %s", err)
 	}
 
+	err = validSupplyAndMaxSupply(supply, maxSupply)
+	if err != nil {
+		return fmt.Errorf("validate payload data error: %s", err)
+	}
+
 	err = validBool(mintable)
 	if err != nil {
 		return fmt.Errorf("validate payload data error: %s", err)
@@ -256,6 +261,26 @@ func validBool(flag string) error {
 	_, err := strconv.ParseBool(flag)
 	if err != nil {
 		return fmt.Errorf("parse bool value of %s error", flag)
+	}
+
+	return nil
+}
+
+func validSupplyAndMaxSupply(supply string, maxSupply string) error {
+	biSupply := new(big.Int)
+	biSupply, ok := biSupply.SetString(supply, 10)
+	if !ok {
+		return fmt.Errorf("supply convert to big int error")
+	}
+
+	biMaxSupply := new(big.Int)
+	biMaxSupply, ok = biMaxSupply.SetString(maxSupply, 10)
+	if !ok {
+		return fmt.Errorf("max supply convert to big int error")
+	}
+
+	if biSupply.Cmp(biMaxSupply) == 1 {
+		return fmt.Errorf("supply should be less than max supply")
 	}
 
 	return nil
