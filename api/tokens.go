@@ -167,9 +167,6 @@ func sendTx(client *ethclient.Client, txData string) {
 		return
 	}
 
-	amount := new(big.Int)
-	amount.SetString("100000000000000000000", 10)
-
 	tx := types.NewTx(&types.LegacyTx{
 		Nonce:    nonce,
 		GasPrice: gasPrice,
