@@ -38,23 +38,10 @@ type Response struct {
 	Result string
 }
 
-func getPayload() *Payload {
-	return &Payload{
-		Name:      "testR",
-		Symbol:    "RTTA",
-		Supply:    "100",
-		MaxSupply: "1000000",
-		Mintable:  "true",
-		Burnable:  "true",
-		Capped:    "false",
-	}
-}
-
-func CreateToken(name, symbol, supply, maxSupply, mintable, burnable, capped string) error {
-	var err error
-	err = validateData(name, symbol, supply, maxSupply, mintable, burnable, capped)
+func CreateToken(name, symbol, supply, maxSupply, mintable, burnable, capped string) {
+	err := validateData(name, symbol, supply, maxSupply, mintable, burnable, capped)
 	if err != nil {
-		return fmt.Errorf("validate payload data error: %s", err)
+		fmt.Printf("validate payload data error: %s", err)
 	}
 
 	payload := &Payload{
@@ -78,8 +65,6 @@ func CreateToken(name, symbol, supply, maxSupply, mintable, burnable, capped str
 	}
 
 	sendTx(client, txData.Result)
-
-	return nil
 }
 
 func getBytecode(path string, payload *Payload) (*Response, error) {
