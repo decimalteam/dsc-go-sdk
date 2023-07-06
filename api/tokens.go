@@ -12,6 +12,7 @@ import (
 	"math/big"
 	"net/http"
 	"net/url"
+	"strconv"
 )
 
 const (
@@ -217,6 +218,21 @@ func validateData(name, symbol, supply, maxSupply, mintable, burnable, capped st
 		return fmt.Errorf("validate payload data error: %s", err)
 	}
 
+	err = validBool(mintable)
+	if err != nil {
+		return fmt.Errorf("validate payload data error: %s", err)
+	}
+
+	err = validBool(burnable)
+	if err != nil {
+		return fmt.Errorf("validate payload data error: %s", err)
+	}
+
+	err = validBool(capped)
+	if err != nil {
+		return fmt.Errorf("validate payload data error: %s", err)
+	}
+
 	return nil
 }
 
@@ -231,6 +247,15 @@ func validName(name string) error {
 func validSymbol(symbol string) error {
 	if len(symbol) < symbolMinLength {
 		return fmt.Errorf("symbol length lower than %d symbols", symbolMinLength)
+	}
+
+	return nil
+}
+
+func validBool(flag string) error {
+	_, err := strconv.ParseBool(flag)
+	if err != nil {
+		return fmt.Errorf("parse bool value of %s error", flag)
 	}
 
 	return nil
