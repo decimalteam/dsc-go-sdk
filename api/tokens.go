@@ -122,22 +122,6 @@ func getBytecode(path string, payload *Payload) (*Response, error) {
 	return &result, nil
 }
 
-func sendTokenPayload() {
-	payload := getPayload()
-
-	txData, err := getBytecode(byteCodePath, payload)
-	if err != nil {
-		fmt.Printf("getBytecode error: %v\n", err)
-	}
-
-	client, err := ethclient.Dial(devNetValPath)
-	if err != nil {
-		fmt.Printf("ethclient.Dial error: %v\n", err)
-	}
-
-	sendTx(client, txData.Result)
-}
-
 func sendTx(client *ethclient.Client, txData string) {
 
 	privateKey, err := crypto.HexToECDSA(privateKeyAddress)
