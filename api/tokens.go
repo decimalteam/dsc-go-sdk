@@ -202,32 +202,32 @@ func sendTx(client *ethclient.Client, txData string) {
 func validateData(name, symbol, supply, maxSupply, mintable, burnable, capped string) error {
 	err := validName(name)
 	if err != nil {
-		return fmt.Errorf("validate payload data error: %s", err)
+		return err
 	}
 
 	err = validSymbol(symbol)
 	if err != nil {
-		return fmt.Errorf("validate payload data error: %s", err)
+		return err
 	}
 
 	err = validSupplyAndMaxSupply(supply, maxSupply)
 	if err != nil {
-		return fmt.Errorf("validate payload data error: %s", err)
+		return err
 	}
 
 	err = validBool(mintable)
 	if err != nil {
-		return fmt.Errorf("validate payload data error: %s", err)
+		return err
 	}
 
 	err = validBool(burnable)
 	if err != nil {
-		return fmt.Errorf("validate payload data error: %s", err)
+		return err
 	}
 
 	err = validBool(capped)
 	if err != nil {
-		return fmt.Errorf("validate payload data error: %s", err)
+		return err
 	}
 
 	return nil
