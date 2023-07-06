@@ -30,6 +30,7 @@ func main() {
 	//sampleSendCoins(api)
 	//time.Sleep(time.Second * 10)
 
+	//dscApi.CreateToken("testR", "RTTA", "100", "1000000", "true", "true", "false")
 }
 
 func checkGateAPI() {
