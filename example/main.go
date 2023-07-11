@@ -19,14 +19,18 @@ import (
 func main() {
 	//verifyEndpoints()
 
-	checkGateAPI()
-	checkDirectAPI()
+	//	checkGateAPI()
+	//	checkDirectAPI()
 
-	//printBlockchainInfo(api)
+	api := dscApi.NewAPI(
+		"https://devnet-gate.decimalchain.com/api",
+	)
+	printBlockchainInfo(api)
 
 	//sampleSendCoins(api)
 	//time.Sleep(time.Second * 10)
 
+	//dscApi.CreateToken("testR", "RTTA", "100", "1000000", "true", "true", "false")
 }
 
 func checkGateAPI() {
@@ -325,6 +329,7 @@ func printBlockchainInfo(api *dscApi.API) {
 	printBlocks(api)
 	printAddressInfo(api)
 	printTxInfo(api)
+	printTxDecodeInfo(api)
 	printEvmAccounts(api)
 	printEvmContracts(api)
 	printEvmTransactions(api)
@@ -376,13 +381,23 @@ func printAddressInfo(api *dscApi.API) {
 }
 
 func printTxInfo(api *dscApi.API) {
-	for _, hash := range []string{"0236FD82E1CAA67C7C3023B26E27F8EBDA3475C47936A4E5F61C7D655D5B39B2",
-		"D355B19F7958DC76454BCD057715D232DED4634458AF1A7F64FDADB0FBBB6699"} {
+	for _, hash := range []string{"F3DBCD6A2DB6C8AE1C4B8799CF6ACAA6A5123E1A4C7ABA228D7929E05E6B7B8A"} {
 		tx, err := api.GetTxByHash(hash)
 		if err != nil {
 			fmt.Printf("GetTxByHash() error: %v\n", err)
 		} else {
 			fmt.Printf("GetTxByHash() %s result:\n%s\n", hash, formatAsJSON(tx))
+		}
+	}
+}
+
+func printTxDecodeInfo(api *dscApi.API) {
+	for _, hash := range []string{"2087904895F9DB43356568DA232F0BD0F9C81A5B733D6862654E0B21737AFD26"} {
+		txDecoded, err := api.DecodeTransaction(hash)
+		if err != nil {
+			fmt.Printf("GetTxByHash() error: %v\n", err)
+		} else {
+			fmt.Printf("GetTxByHash() %s result:\n%s\n", hash, txDecoded)
 		}
 	}
 }

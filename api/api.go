@@ -1,6 +1,7 @@
 package api
 
 import (
+	dscTx "bitbucket.org/decimalteam/dsc-go-sdk/tx"
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
@@ -8,7 +9,9 @@ import (
 	"strconv"
 	"time"
 
+	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	evm "github.com/evmos/ethermint/x/evm/types"
 	"github.com/go-resty/resty/v2"
 )
 
@@ -243,6 +246,7 @@ func (api *API) DecodeTransaction(hash string) (TxDecoded, error) {
 	}
 	txdec.Code = respValue.Result.TxResult.Code
 	txdec.Codespace = respValue.Result.TxResult.Codespace
+
 	// find fee
 	for _, ev := range respValue.Result.TxResult.Events {
 		if ev.Type == "decimal.fee.v1.EventPayCommission" {
@@ -263,6 +267,31 @@ func (api *API) DecodeTransaction(hash string) (TxDecoded, error) {
 					}
 				}
 			}
+		}
+	}
+
+	msg, ok := txdec.Msg.(*evm.MsgEthereumTx)
+	if ok {
+		if sdkmath.NewIntFromBigInt(msg.AsTransaction().Value()).IsZero() {
+			return txdec, nil
+		}
+		msg.GetSigners()
+		var coin sdk.Coin
+		coin.Amount = sdkmath.NewIntFromBigInt(msg.AsTransaction().Value())
+		coin.Denom = "del"
+		var recipient = msg.AsTransaction().To().String()
+		sender, err := GetDecimalAddressFromHex(msg.From)
+		if err == nil {
+			msg.From = sender.String()
+		}
+		recipientD0, err := GetDecimalAddressFromHex(recipient)
+		if err == nil {
+			recipient = recipientD0.String()
+		}
+		txdec.Msg = &dscTx.MsgSendCoin{
+			Sender:    msg.From,
+			Recipient: recipient,
+			Coin:      coin,
 		}
 	}
 
